@@ -14,22 +14,16 @@ from random import SystemRandom
 import json
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from Core.LoadConfig import LoadLoggerConfig
-from Core.LoadConfig import LoadDatabaseConfig
-from Core.LoadConfig import LoadZookeeperConfig
-from Core.LoadConfig import LoadKafkaConfig
+from Core.Initialization.LoadConfig import LoadLoggerConfig
+from Core.Initialization.LoadConfig import LoadDatabaseConfig
+from Core.Initialization.LoadConfig import LoadZookeeperConfig
+from Core.Initialization.LoadConfig import LoadInternodeQueueConfig
 
-from Core.Instantiator import InstantiateZK
-from Core.Instantiator import InstantiateKafka
-from Core.Instantiator import InstantiateDB
-from Core.Instantiator import InstantiateLogger
+from Core.Initialization.Instantiator import InstantiateZK
+from Core.Initialization.Instantiator import InstantiateLogger
 
-from Zookeeper.Zookeeper import ZK
-
-
-#https://realpython.com/python-https/
-#Client -HTTP> Proxy(This File, Hosts API) -zNode> Zookeeper -zNode> Leader -zNode(s)> Follower(s)
 
 
 
@@ -46,15 +40,14 @@ Branch = 'dev' # 'dev' or 'rel'
 
 
 # Load Config #
-LogPath, PrintLogOutput, SecondsToKeepLogs = LoadLoggerConfig(ConfigFilePath = 'Config/LoggerConfig.yaml')
-DBUname, DBPasswd, DBHost, DBName = LoadDatabaseConfig(ConfigFilePath = 'Config/DatabaseConfig.yaml')
-ZKHost = LoadZookeeperConfig(ConfigFilePath = 'Config/ZookeeperConfig.yaml')
-KafkaHost = LoadKafkaConfig(ConfigFilePath = 'Config/KafkaConfig.yaml')
+LoggerConfigDict = LoadLoggerConfig(ConfigFilePath = 'Config/LoggerConfig.yaml')
+DBConfigDict = LoadDatabaseConfig(ConfigFilePath = 'Config/DatabaseConfig.yaml')
+ZKConfigDict = LoadZookeeperConfig(ConfigFilePath = 'Config/ZookeeperConfig.yaml')
+InternodeConfigDict = LoadInternodeQueueConfig(ConfigFilePath = 'Config/InternodeQueue.yaml')
 
 
 # Initialize Logger #
-mLogger = InstantiateLogger(DBUname, DBPasswd, DBHost, DBName, SecondsToKeepLogs, LogPath, PrintLogOutput)
-
+mLogger = InstantiateLogger(DBConfigDict, LoggerConfigDict)
 
 
 # Purges The Log Buffer On System Exit #
@@ -64,11 +57,27 @@ def CleanLog():
 
 
 # Connect To Zookeeper Service #
-sZookeeper = InstantiateZK(mLogger, ZKHost)
+sZookeeper = InstantiateZK(mLogger, ZKConfigDict)
 
 
 # Define API #
 app = FastAPI()
+
+
+# Set Allowed Origins #
+
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 # Create A Connection zNode #
