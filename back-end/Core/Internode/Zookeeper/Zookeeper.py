@@ -135,9 +135,17 @@ class ZK(): # Create Interface Class #
 
         if not self.CheckIfLeaderExists():
 
-            self.Logger.Log('Failed To Find ZK Leader, Starting Election')
+            self.Logger.Log('Failed To Find ZK Leader, Waiting For Leader...')
 
-            self.ElectLeader()
+            #self.ElectLeader()
+
+            while not self.CheckIfLeaderExists():
+
+                # Idle #
+                time.sleep(0.1)
+
+            self.Logger.Log('Leader Located')
+            self.Logger.Log('This Node Is Running In Follower Mode')
 
             self.ZookeeperHaveLeader = True
 
@@ -241,7 +249,7 @@ class ZK(): # Create Interface Class #
             # Check Leader #
             if not LeaderExists:
                 self.LeaderTimeout()
-            if not self.ZookeeperConnection.exists('/BrainGenix/System/Leader'):
+            if self.ZookeeperConnection.exists('/BrainGenix/System/Leader'):
                 if (self.ZookeeperConnection.get('/BrainGenix/System/Leader')[0] != self.Name.encode() and (self.ZookeeperMode == 'Leader')):
                     self.Logger.Log('Node Lock File Overwritten, Degrading To Follower!', 1)
                     self.ZookeeperMode = 'Follower'
@@ -320,7 +328,9 @@ class ZK(): # Create Interface Class #
 
         self.ZookeeperHaveLeader = False
         self.ZookeeperMode = 'Follower'
-        self.AutoInitZKLeader()
+
+        # Disallow Leader Mode For Management-APIServer #
+        #self.AutoInitZKLeader()
 
 
     def Exit(self): # Shutsdown the ZK connection #
