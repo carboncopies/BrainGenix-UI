@@ -1,0 +1,14 @@
+{
+  "name": "front-end",
+  "version": "1.0.0",
+  "description": "Front end UI for BrainGenix core & other applications",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "BrainGenix Project",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
