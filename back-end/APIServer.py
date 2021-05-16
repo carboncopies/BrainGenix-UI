@@ -19,7 +19,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from Core.Initialization.LoadConfig import LoadLoggerConfig
 from Core.Initialization.LoadConfig import LoadDatabaseConfig
 from Core.Initialization.LoadConfig import LoadZookeeperConfig
-from Core.Initialization.LoadConfig import LoadInternodeQueueConfig
 
 from Core.Initialization.Instantiator import InstantiateZK
 from Core.Initialization.Instantiator import InstantiateLogger
