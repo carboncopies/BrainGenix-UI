@@ -16,6 +16,7 @@ import random
 
 from random import SystemRandom
 
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -27,7 +28,16 @@ from Core.Initialization.Instantiator import InstantiateZK
 from Core.Initialization.Instantiator import InstantiateLogger
 
 
-#def Main(): # Create Main Function
+# Start Uvicorn #
+if __name__ == '__main__':
+    
+    # Launch UVICorn Instance #
+    uvicorn.run("APIServer:API", host="0.0.0.0", port=2001, log_level="info")
+    
+    # Shutdown Server #
+    exit()
+
+
 
 ##############################################################################
 ## NOTE: A Lowercase "m" Preceeding A Class Means It's a Main System        ##
@@ -61,12 +71,11 @@ def CleanLog():
 sZookeeper = InstantiateZK(mLogger, ZKConfigDict)
 
 
-# Define API #
+# Instantiate FastAPI System #
 API = FastAPI()
 
 
 # Set Allowed Origins #
-
 origins = [
     "*"
 ]
@@ -108,7 +117,7 @@ async def test():
     return json.loads(sZookeeper.ZookeeperConnection.get(ConnectionNode)[0].decode())
 
 
-# Start System #
+# Print MOTD #
 mLogger.Log('Starting API Server')
 mLogger.Log('')
 mLogger.Log('---------------------------------------------------------------------------')
@@ -124,11 +133,3 @@ mLogger.Log('    +--------------------------------------------------------------
 mLogger.Log(f'    |          Welcome To BrainGenix-APIServer Version {Version}-{Branch}      |')
 mLogger.Log('    +-----------------------------------------------------------------+')
 mLogger.Log('')
-
-
-# Instantiate Main #
-#API = Main()
-
-# Start Uvicorn #
-if __name__ == '__main__':
-    uvicorn.run("APIServer:API", host="0.0.0.0", port=2001, log_level="info")
