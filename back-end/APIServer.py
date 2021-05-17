@@ -13,6 +13,7 @@ import atexit
 import json
 import uvicorn
 import random
+import os
 
 from random import SystemRandom
 
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     uvicorn.run("APIServer:API", host="0.0.0.0", port=2001, log_level="info")
     
     # Shutdown Server #
-    exit()
+    os._exit(0)
 
 
 
