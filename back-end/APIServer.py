@@ -106,16 +106,27 @@ async def root():
 async def RandomNumberTest():
     return {'message' : random.randint(0,100)}
 
-@API.get('/test')
-async def test():
+# @API.get('/NumberOfConnectedNodes')
+# async def NumberOfConnectedNodes():
+    
+#     sZookeeper.ZookeeperConnection.set(ConnectionNode, b'{"CallStack": "Version", "KeywordArgs": {}}')
 
-    sZookeeper.ZookeeperConnection.set(ConnectionNode, b'{"CallStack": "Version", "KeywordArgs": {}}')
-
-    while sZookeeper.ZookeeperConnection.get(ConnectionNode)[0] == b'{"CallStack": "Version", "KeywordArgs": {}}':
-        pass
+#     while sZookeeper.ZookeeperConnection.get(ConnectionNode)[0] == b'{"CallStack": "Version", "KeywordArgs": {}}':
+#         pass
 
 
-    return json.loads(sZookeeper.ZookeeperConnection.get(ConnectionNode)[0].decode())
+#     return json.loads(sZookeeper.ZookeeperConnection.get(ConnectionNode)[0].decode())
+
+# @API.get('/test')
+# async def test():
+
+#     sZookeeper.ZookeeperConnection.set(ConnectionNode, b'{"CallStack": "Version", "KeywordArgs": {}}')
+
+#     while sZookeeper.ZookeeperConnection.get(ConnectionNode)[0] == b'{"CallStack": "Version", "KeywordArgs": {}}':
+#         pass
+
+
+#     return json.loads(sZookeeper.ZookeeperConnection.get(ConnectionNode)[0].decode())
 
 
 # Print MOTD #
