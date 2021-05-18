@@ -25,6 +25,9 @@ from Core.Initialization.LoadConfig import LoadLoggerConfig
 from Core.Initialization.LoadConfig import LoadDatabaseConfig
 from Core.Initialization.LoadConfig import LoadZookeeperConfig
 
+from Core.BackendAPIClient.SocketClient import GetSocketClientConfig
+from Core.BackendAPIClient.SocketClient import SocketClient
+
 from Core.Initialization.Instantiator import InstantiateZK
 from Core.Initialization.Instantiator import InstantiateLogger
 
@@ -72,6 +75,10 @@ def CleanLog():
 sZookeeper = InstantiateZK(mLogger, ZKConfigDict)
 
 
+# Get Socket Client Config #
+SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, 'fds')
+
+
 # Instantiate FastAPI System #
 API = FastAPI()
 
@@ -92,9 +99,9 @@ API.add_middleware(
 
 
 # Create A Connection zNode #
-cryptogen = SystemRandom()
-ConnectionNode = f'/BrainGenix/API/Connections/{cryptogen.randrange(38564328964397256432564372)}'
-sZookeeper.ZookeeperConnection.create(ConnectionNode, ephemeral=True)
+#cryptogen = SystemRandom()
+#ConnectionNode = f'/BrainGenix/API/Connections/{cryptogen.randrange(38564328964397256432564372)}'
+#sZookeeper.ZookeeperConnection.create(ConnectionNode, ephemeral=True)
 
 
 # Define Methods In API #
