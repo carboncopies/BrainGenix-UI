@@ -24,6 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from Core.Initialization.LoadConfig import LoadLoggerConfig
 from Core.Initialization.LoadConfig import LoadDatabaseConfig
 from Core.Initialization.LoadConfig import LoadZookeeperConfig
+from Core.Initialization.LoadConfig import LoadManagementAPIServerConfig
 
 from Core.BackendAPIClient.SocketClient import GetSocketClientConfig
 from Core.BackendAPIClient.SocketClient import SocketClient
@@ -59,6 +60,7 @@ Branch = 'dev' # 'dev' or 'rel'
 LoggerConfigDict = LoadLoggerConfig(ConfigFilePath = 'Config/LoggerConfig.yaml')
 DBConfigDict = LoadDatabaseConfig(ConfigFilePath = 'Config/DatabaseConfig.yaml')
 ZKConfigDict = LoadZookeeperConfig(ConfigFilePath = 'Config/ZookeeperConfig.yaml')
+MAPIConfigDict = LoadManagementAPIServerConfig(ConfigFilePath = 'Config/ManagementAPIConfig.yaml')
 
 
 # Initialize Logger #
@@ -76,8 +78,8 @@ sZookeeper = InstantiateZK(mLogger, ZKConfigDict)
 
 
 # Get Socket Client Config #
-SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, 'fds')
-
+SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
+print(SocketClientConfig)
 
 # Instantiate FastAPI System #
 API = FastAPI()
