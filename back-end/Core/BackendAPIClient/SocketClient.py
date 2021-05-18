@@ -21,7 +21,15 @@ class SocketClient(): # Creates A Client Socket System #
         self.IP = ConfigParams['IP']
         self.Port = ConfigParams['Port']
 
+        # Create Socket Host Variable #
+        self.Logger.Log('Creating Host Variable')
+        self.SocketHost = (self.IP, self.Port)
+
         # Connect To Server #
+        self.Logger.Log('Connecting To Remote Host')
+        self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.Socket.connect(self.SocketHost)
+
         
 
 def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads Configuration For SocketClient #
@@ -38,7 +46,10 @@ def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads
 
     # Decode Leader Information #    
     ZookeeperLeaderInformation = ZookeeperInstance.ZookeeperConnection.get('/BrainGenix/System/Leader')[0]
-    print(ZookeeperLeaderInformation)
     ZookeeperLeaderInformation = json.loads(ZookeeperLeaderInformation)
+    IPAddr = ZookeeperLeaderInformation['IP'].split(':')[0]
 
-    print(ZookeeperLeaderInformation)
+    # Get Port Information #
+    Port = BackendConfigDict['Port']
+
+    return {'IP' : IPAddr, 'Port' : Port}
