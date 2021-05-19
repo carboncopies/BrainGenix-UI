@@ -85,6 +85,8 @@ SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
 sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
 
 print(sNESSocketConnection.SendCommand({"SysName":"NES", "CallStack":"TestAPI", "KeywordArgs": {}}))
+sNESSocketConnection.Disconnect()
+
 
 # Instantiate FastAPI System #
 API = FastAPI()
