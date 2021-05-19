@@ -26,11 +26,40 @@ class SocketClient(): # Creates A Client Socket System #
         self.SocketHost = (self.IP, self.Port)
 
         # Connect To Server #
-        self.Logger.Log('Connecting To Remote Host')
+        self.Logger.Log(f'Connecting To Remote Host At Host: {self.SocketHost}')
         self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.Socket.connect(self.SocketHost)
 
-        
+
+    def SendCommand(self, CommandDict:dict): # Sends A Command To The Server #
+
+        # Encode Dict As JSON String #
+        self.CommandString = json.dumps(CommandDict)
+
+        # Encode As Bytes #
+        self.CommandString = self.CommandString.encode()
+
+        # Send To Server #
+        self.Socket.send(self.CommandString)
+
+        # Await Response #
+        self.ResponseBytes = self.Socket.recv(65535)
+
+        # Decode Response #
+        self.ResponseString = self.ResponseBytes.decode()
+
+        # Convert To Dict #
+        self.ResponseDictionary = json.loads(self.ResponseString)
+
+        # Return String #
+        return self.ResponseDictionary
+
+
+    def Disconnect(self): # Disconnects The Client #
+
+        # Call Disconnect #
+        self.Socket.send(json.dumps({''}))
+
 
 def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads Configuration For SocketClient #
 
