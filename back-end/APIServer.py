@@ -79,7 +79,12 @@ sZookeeper = InstantiateZK(mLogger, ZKConfigDict)
 
 # Get Socket Client Config #
 SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
-print(SocketClientConfig)
+
+
+# Connect To NES Server #
+sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
+
+print(sNESSocketConnection.SendCommand({"SysName":"NES", "CallStack":"TestAPI", "KeywordArgs": {}}))
 
 # Instantiate FastAPI System #
 API = FastAPI()
