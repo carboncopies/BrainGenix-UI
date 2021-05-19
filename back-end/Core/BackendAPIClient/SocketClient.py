@@ -58,7 +58,8 @@ class SocketClient(): # Creates A Client Socket System #
     def Disconnect(self): # Disconnects The Client #
 
         # Call Disconnect #
-        self.Socket.send(json.dumps({''}))
+        self.Socket.send(json.dumps({'CallStack': 'Disconnect'}).encode())
+        self.Socket.close()
 
 
 def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads Configuration For SocketClient #
