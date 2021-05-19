@@ -31,6 +31,7 @@ class SocketClient(): # Creates A Client Socket System #
         self.Socket.connect(self.SocketHost)
 
 
+
     def SendCommand(self, CommandDict:dict): # Sends A Command To The Server #
 
         # Encode Dict As JSON String #
@@ -55,11 +56,43 @@ class SocketClient(): # Creates A Client Socket System #
         return self.ResponseDictionary
 
 
+
+    def BenchmarkConnection(self, NumberCommands = 1000, LogOutput = True): # Runs Connection Benchmark #
+
+        # If Log Output, Log Output #
+        if LogOutput:
+            self.Logger.Log(f'Starting MAPI Server Benchmark With {NumberCommands} Command Calls')
+
+
+        # Get Current Unix Epoch #
+        StartTime = time.time()
+
+        # Enter Loop And Send Test Command #
+        for _ in range(NumberCommands):
+            self.SendCommand({"SysName":"NES", "CallStack":"TestAPI", "KeywordArgs": {}})
+
+        # Measure Duration Of Test #
+        DeltaTime = time.time() - StartTime
+
+        # Calculate Time Per Call #
+        TimePerCall = DeltaTime / NumberCommands
+
+        # If LogOutput, Show Results #
+        if LogOutput:
+            self.Logger.Log(f'Benchmark Complete, Each API Call (TestAPI Command) Took {round(TimePerCall*1000, 4)}ms')
+
+        # Return Value #
+        return TimePerCall
+
+
+
     def Disconnect(self): # Disconnects The Client #
 
         # Call Disconnect #
         self.Socket.send(json.dumps({'CallStack': 'Disconnect'}).encode())
         self.Socket.close()
+
+
 
 
 def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads Configuration For SocketClient #
