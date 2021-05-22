@@ -19,6 +19,7 @@ from random import SystemRandom
 
 
 from fastapi import FastAPI
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from Core.Initialization.LoadConfig import LoadLoggerConfig
@@ -83,9 +84,7 @@ SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
 
 # Connect To NES Server #
 sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
-#sNESSocketConnection.BenchmarkConnection()
-
-print(sNESSocketConnection.SendCommand({"SysName":"NES", "CallStack":"test", "KeywordArgs": {}}))
+sNESSocketConnection.BenchmarkConnection()
 
 
 # Instantiate FastAPI System #
@@ -106,43 +105,18 @@ API.add_middleware(
 )
 
 
-
-# Create A Connection zNode #
-#cryptogen = SystemRandom()
-#ConnectionNode = f'/BrainGenix/API/Connections/{cryptogen.randrange(38564328964397256432564372)}'
-#sZookeeper.ZookeeperConnection.create(ConnectionNode, ephemeral=True)
-
-
 # Define Methods In API #
-@API.get('/')
-async def root():
-    return {'message' : 'Congradulations, You\'ve successfully installed the BrainGenix Management API Backend! Now, go and set up your front end to match your backend configuration parameters.'}
+@API.post('/')
+async def root(RequestJSON: Request):
+    return sNESSocketConnection.SendCommand(RequestJSON)
 
-@API.get('/RandomNumberTest')
+@API.get('/APIServerTest')
 async def RandomNumberTest():
-    return {'message' : random.randint(0,100)}
+    return {'message' : '"It just works" - Todd Howard'}
 
-# @API.get('/NumberOfConnectedNodes')
-# async def NumberOfConnectedNodes():
-    
-#     sZookeeper.ZookeeperConnection.set(ConnectionNode, b'{"CallStack": "Version", "KeywordArgs": {}}')
-
-#     while sZookeeper.ZookeeperConnection.get(ConnectionNode)[0] == b'{"CallStack": "Version", "KeywordArgs": {}}':
-#         pass
-
-
-#     return json.loads(sZookeeper.ZookeeperConnection.get(ConnectionNode)[0].decode())
-
-# @API.get('/test')
-# async def test():
-
-#     sZookeeper.ZookeeperConnection.set(ConnectionNode, b'{"CallStack": "Version", "KeywordArgs": {}}')
-
-#     while sZookeeper.ZookeeperConnection.get(ConnectionNode)[0] == b'{"CallStack": "Version", "KeywordArgs": {}}':
-#         pass
-
-
-#     return json.loads(sZookeeper.ZookeeperConnection.get(ConnectionNode)[0].decode())
+@API.get('/APIBackendTest')
+async def APIBackendTest():
+    return sNESSocketConnection.SendCommand({"SysName":"NES", "CallStack":"TestAPI", "KeywordArgs": {}})
 
 
 # Print MOTD #
