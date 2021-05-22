@@ -11,6 +11,7 @@ import uuid
 import atexit
 import json
 import requests
+from requests.sessions import Request
 
 
 '''
@@ -28,14 +29,14 @@ class Client(): # Client For BrainGenix System #
     '''
 
 
-    def __init__(self, ZKAddress:str):
+    def __init__(self, Host:str):
 
         '''
         Initializes the Client, Authenticates, and waits until connection accepted.
         '''
 
-        # Connect To HTTP API #
-        r = requests.post()
+        # Set Local Pointer #
+        self.Host = Host
 
 
     def Main(self): # Main Loop #
@@ -45,10 +46,11 @@ class Client(): # Client For BrainGenix System #
         This contains the loop that gets the user's input and passes it on to the server.
         '''
 
-        
-
+        # Connect To HTTP API #
+        RequestObject = requests.post(self.Host, json="{'SysName':'NES', 'CallStack':'TestAPI', 'KeywordArgs': {}}")
+        print(RequestObject.json())
 
 
 # Instantiate The Client #
-CLI = Client('10.1.4.2001')
+CLI = Client('http://10.1.4.2:2001')
 CLI.Main()
