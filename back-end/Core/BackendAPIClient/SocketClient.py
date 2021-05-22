@@ -56,6 +56,23 @@ class SocketClient(): # Creates A Client Socket System #
         return self.ResponseDictionary
 
 
+    def SendRaw(self, CommandDict:dict): # Sends A Command To The Server (RAW Bytes) #
+
+        # Send To Server #
+        self.Socket.send(self.CommandString)
+
+        # Await Response #
+        self.ResponseBytes = self.Socket.recv(65535)
+
+        # Decode Response #
+        self.ResponseString = self.ResponseBytes.decode()
+
+        # Convert To Dict #
+        self.ResponseDictionary = json.loads(self.ResponseString)
+
+        # Return String #
+        return self.ResponseDictionary
+
 
     def BenchmarkConnection(self, NumberCommands = 1000, LogOutput = True): # Runs Connection Benchmark #
 
