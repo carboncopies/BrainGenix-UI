@@ -56,10 +56,13 @@ class SocketClient(): # Creates A Client Socket System #
         return self.ResponseDictionary
 
 
-    def SendRaw(self, CommandDict:dict): # Sends A Command To The Server (RAW Bytes) #
+    def SendRaw(self, CommandString:bytes): # Sends A Command To The Server (RAW Bytes) #
+
+        # Encode #
+        CommandString = CommandString.encode()
 
         # Send To Server #
-        self.Socket.send(self.CommandString)
+        self.Socket.send(CommandString)
 
         # Await Response #
         self.ResponseBytes = self.Socket.recv(65535)
