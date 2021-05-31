@@ -11,6 +11,8 @@ Date-Created: 2021-03-03
 
 import atexit
 import json
+
+from requests.sessions import REDIRECT_STATI
 import uvicorn
 import random
 import os
@@ -84,7 +86,7 @@ SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
 
 # Connect To NES Server #
 sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
-sNESSocketConnection.BenchmarkConnection()
+#sNESSocketConnection.BenchmarkConnection()
 
 
 # Instantiate FastAPI System #
@@ -108,8 +110,11 @@ API.add_middleware(
 # Define Methods In API #
 @API.post('/')
 async def root(RequestJSON: Request):
+    
     RequestString = await RequestJSON.body()
     RequestString = RequestString.decode()
+    
+    RequestString = json.loads(RequestString)
 
     return sNESSocketConnection.SendRaw(RequestString)
 
