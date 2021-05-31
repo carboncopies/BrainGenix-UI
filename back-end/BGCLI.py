@@ -1,8 +1,4 @@
 ###########################################################
-# NOTE: DO NOT USE THIS IN PRODUCTION, IT IS *NOT* SECURE #
-###########################################################
-
-###########################################################
 ## This file is part of the BrainGenix Simulation System ##
 ###########################################################
 
@@ -37,6 +33,12 @@ class Client(): # Client For BrainGenix System #
 
         # Set Local Pointer #
         self.Host = Host
+        self.EndChar = '#'
+        self.Hostname = Host.strip('http://').strip('https://')
+        self.Username = 'root'
+
+        # Set Config Parameters #
+        self.Scope = ''
 
 
     def Main(self): # Main Loop #
@@ -46,9 +48,50 @@ class Client(): # Client For BrainGenix System #
         This contains the loop that gets the user's input and passes it on to the server.
         '''
 
-        # Connect To HTTP API #
-        RequestObject = requests.post(self.Host, json="{'SysName':'NES', 'CallStack':'TestAPI', 'KeywordArgs': {}}")
-        print(RequestObject.json())
+        while True:
+
+            # Get User Input From Command #
+            CommandString = input(f'{self.Username}@{self.Hostname}{self.EndChar}')
+
+            # Parse Command #
+            if CommandString.lower().startswith('scope '):
+                self.Scope = CommandString.split(' ')[1]
+                print(f'Setting Scope To {self.Scope}')
+
+            else:
+                # Get Command Callstack #
+                Callstack = CommandString.split(' ')[0]
+
+                # Get Arguments #
+                Arguments = {}
+                for ArgumentString in CommandString.split(' ')[:-1]:
+
+                    ArgumentKey = ArgumentString.split('=')[0]
+                    ArgumentValue = ArgumentString.split('=')[1]
+
+                    Arguments.update({ArgumentKey : ArgumentValue})
+
+                # Format As JSON #
+                CommandDict = {'SysName':self.Scope, 'CallStack':Callstack, 'KeywordArgs':Arguments}
+                CommandJSONString = json.dumps(CommandDict)
+
+                # Send Command And Get Output #
+                Output = self.ExecuteCommand(CommandJSONString)
+
+                # Print Output #
+                print(Output)
+
+
+            # Connect To HTTP API #
+            #RequestObject = requests.post(self.Host, json="{'SysName':'NES', 'CallStack':'TestAPI', 'KeywordArgs': {}}")
+            #print(self.ExecuteCommand({'SysName':'NES', 'CallStack':'TestAPI', 'KeywordArgs': {}}))
+
+
+    def ExecuteCommand(self, CommandJSON:str): # Executes A Given Command #
+
+        # Run Command #
+        RequestObject = requests.post(self.Host, json=CommandJSON)
+        return RequestObject.json()
 
 
 # Instantiate The Client #
