@@ -113,20 +113,21 @@ API.add_middleware(
 async def root(RequestJSON: Request):
 
     # Decode Incoming Command #    
-    RequestString = await RequestJSON.body()
-    RequestString = RequestString.decode()
+    RequestBytes = await RequestJSON.body()
+    # RequestString = RequestBytes.decode()
 
-    print(RequestString)
+    # print(RequestString)
 
-    # Load And Return Command #
-    RequestString = json.loads(RequestString)
-    return sNESSocketConnection.SendRaw(RequestString)
+    # # Load And Return Command #
+    # RequestDict = json.loads(RequestString)
+    #print(RequestDict)
+    return sNESSocketConnection.SendRaw(RequestBytes)
 
     
 
 @API.get('/APIServerTest')
 async def RandomNumberTest():
-    return {'message' : '"It just works" - Todd Howard'}
+    return {'Name': 'Get Request Test', 'Content' : '"It just works" - Todd Howard'}
 
 
 @API.get('/APIBackendTest')
