@@ -104,33 +104,30 @@ API.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    
 )
 
 
 # Define Methods In API #
 @API.post('/')
 async def root(RequestJSON: Request):
-    
-    RequestString = await RequestJSON.body()
-    RequestString = RequestString.decode()
 
+    # Decode Incoming Command #    
+    RequestBytes = await RequestJSON.body()
+    # RequestString = RequestBytes.decode()
 
-    # Check For Empty Command #
-    if RequestString != '"{\"SysName\": \"NES\", \"CallStack\": \"\", \"KeywordArgs\": {}}"':
-    
-        # Load And Return Command #
-        RequestString = json.loads(RequestString)
-        return sNESSocketConnection.SendRaw(RequestString)
-    
-    else:
-    
-        # Return Bad Command #
-        return '{"Message":"BAD COMMAND"}'
+    # print(RequestString)
 
+    # # Load And Return Command #
+    # RequestDict = json.loads(RequestString)
+    #print(RequestDict)
+    return sNESSocketConnection.SendRaw(RequestBytes)
+
+    
 
 @API.get('/APIServerTest')
 async def RandomNumberTest():
-    return {'message' : '"It just works" - Todd Howard'}
+    return {'Name': 'Get Request Test', 'Content' : '"It just works" - Todd Howard'}
 
 
 @API.get('/APIBackendTest')
