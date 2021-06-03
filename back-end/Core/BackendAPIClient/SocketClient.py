@@ -2,6 +2,7 @@
 ## This file is part of the BrainGenix Simulation System ##
 ###########################################################
 
+from json.decoder import JSONDecodeError
 import time
 import socket
 import json
@@ -71,7 +72,14 @@ class SocketClient(): # Creates A Client Socket System #
         self.ResponseString = self.ResponseBytes.decode()
 
         # Convert To Dict #
-        self.ResponseDictionary = json.loads(self.ResponseString)
+        try:
+
+            self.ResponseDictionary = json.loads(self.ResponseString)
+
+        except JSONDecodeError:
+
+            self.ResponseDictionary = {"Message":"BAD COMMAND"}
+
 
         # Return String #
         return self.ResponseDictionary
