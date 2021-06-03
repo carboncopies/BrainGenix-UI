@@ -59,8 +59,7 @@ class SocketClient(): # Creates A Client Socket System #
 
     def SendRaw(self, CommandString:bytes): # Sends A Command To The Server (RAW Bytes) #
 
-        # Encode #
-        CommandString = str(CommandString).encode()
+
 
         # Send To Server #
         self.Socket.send(CommandString)
