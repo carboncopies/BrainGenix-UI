@@ -113,10 +113,19 @@ async def root(RequestJSON: Request):
     
     RequestString = await RequestJSON.body()
     RequestString = RequestString.decode()
-    
-    RequestString = json.loads(RequestString)
 
-    return sNESSocketConnection.SendRaw(RequestString)
+
+    # Check For Empty Command #
+    if RequestString != '"{\"SysName\": \"NES\", \"CallStack\": \"\", \"KeywordArgs\": {}}"':
+    
+        # Load And Return Command #
+        RequestString = json.loads(RequestString)
+        return sNESSocketConnection.SendRaw(RequestString)
+    
+    else:
+    
+        # Return Bad Command #
+        return '{"Message":"BAD COMMAND"}'
 
 
 @API.get('/APIServerTest')
