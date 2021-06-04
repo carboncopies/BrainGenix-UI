@@ -114,15 +114,19 @@ async def root(RequestJSON: Request):
 
     # Decode Incoming Command #    
     RequestBytes = await RequestJSON.body()
-    # RequestString = RequestBytes.decode()
+    CommandScope = json.loads(RequestBytes.decode())
 
-    # print(RequestString)
+    # Check If Scope Present #
+    if 'SysName' not in CommandScope:
+        return {'Name':'Error', 'Content':'Scope Not Set, Check SysName Parameter'}
 
-    # # Load And Return Command #
-    # RequestDict = json.loads(RequestString)
-    #print(RequestDict)
-    return sNESSocketConnection.SendRaw(RequestBytes)
 
+    # Load And Return Command For NES #
+    if CommandScope['SysName'] == 'NES':
+        return sNESSocketConnection.SendRaw(RequestBytes)
+    ## NOTE: ADD OTHER SCOPES FOR ERS AND STS HERE LATER ##
+    else:
+        return {'Name':'Error', 'Content':'ScopeError: No Valid Server Is Available To Handle Your Request With The Given Scope. Valid Scopes Are "NES", "ERS", "STS".'}
     
 
 @API.get('/APIServerTest')
