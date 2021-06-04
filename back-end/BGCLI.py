@@ -64,7 +64,7 @@ class Client(): # Client For BrainGenix System #
 
                 # Get Arguments #
                 Arguments = {}
-                for ArgumentString in CommandString.split(' ')[:-1]:
+                for ArgumentString in CommandString.split(' ')[1:]:
 
                     ArgumentKey = ArgumentString.split('=')[0]
                     ArgumentValue = ArgumentString.split('=')[1]
@@ -73,18 +73,12 @@ class Client(): # Client For BrainGenix System #
 
                 # Format As JSON #
                 CommandDict = {'SysName':self.Scope, 'CallStack':Callstack, 'KeywordArgs':Arguments}
-                CommandJSONString = json.dumps(CommandDict)
 
                 # Send Command And Get Output #
-                Output = self.ExecuteCommand(CommandJSONString)
+                Output = self.ExecuteCommand(CommandDict)
 
                 # Print Output #
                 print(Output)
-
-
-            # Connect To HTTP API #
-            #RequestObject = requests.post(self.Host, json="{'SysName':'NES', 'CallStack':'TestAPI', 'KeywordArgs': {}}")
-            #print(self.ExecuteCommand({'SysName':'NES', 'CallStack':'TestAPI', 'KeywordArgs': {}}))
 
 
     def ExecuteCommand(self, CommandJSON:str): # Executes A Given Command #
