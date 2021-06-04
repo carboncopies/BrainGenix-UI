@@ -11,7 +11,7 @@ var axios=function(t){function e(r){if(n[r])return n[r].exports;var o=n[r]={expo
             <h1>BrainGenix UI</h1>
         </header>
         <article>
-            <p>Testing the body content...</p>
+            <div id='ram-usage'></div>
         </article>
         <footer>
             <script>
@@ -22,9 +22,6 @@ var axios=function(t){function e(r){if(n[r])return n[r].exports;var o=n[r]={expo
                 })
                     .then(function (response) {
                         // handle success
-                        if (response.Content) {
-                            document.querySelector('article p').innerText = response.Content;
-                        }
                         console.log(response);
                     })
                     .catch(function (error) {
@@ -70,6 +67,24 @@ var axios=function(t){function e(r){if(n[r])return n[r].exports;var o=n[r]={expo
                         // handle error
                         console.log(error);
                     });
+                var ramChecker = setInterval(() => {
+                    axios.post('http://50.255.24.101:2001/', {
+                        SysName: 'NES', 
+                        CallStack:'LFTM.SystemTelemetryManager.mAPI_GetAllNodeStats',
+                        KeywordArgs: {}
+                    })
+                        .then(function (response) {
+                            // handle success
+                            console.log(typeof(response.Content));
+                            for(var h in response.Content) {
+                                document.querySelector('#ram-usage').innerText = response.Content[h].RAMUsage;
+                            }
+                        })
+                        .catch(function (error) {
+                            // handle error
+                            console.log(error);
+                        });
+                }, 200);
                 axios.get('http://50.255.24.101:2001/APIServerTest')
                     .then(response => {
                         console.log(response);
