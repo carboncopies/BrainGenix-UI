@@ -16,6 +16,15 @@ Description: This file is the BG Cli client.
 Date-Created: 2021-01-19
 '''
 
+
+##################################################################
+# Also implement "Cd" functionallity                             #
+# implement other useful cli functionallity                      #
+# perhaps autofil params such as ls's Path={data}?               #
+##################################################################
+
+
+
 class Client(): # Client For BrainGenix System #
 
     '''
