@@ -1,0 +1,30 @@
+/* COLOR PALETTE: https://colorhunt.co/palette/293554 */
+:root {
+    --bg-color-primary: #3b3844;
+    --bg-color-secondary: #161518;
+    --brand-color-primary: #37a843;
+    --brand-color-secondary: #8244d0;
+    --text-color-primary: #f2f2f7;
+    --text-color-secondary: #b5b5b8;
+    --font-family-primary: Quicksand;
+}
+
+body {
+    background-color: var(--bg-color-primary);
+    font-family: var(--font-family-primary);
+    color: var(--text-color-primary);
+}
+
+h1, h2, h3 {
+    color: var(--brand-color-primary);
+}
+
+h4, h5, h6 {
+    color: var(--brand-color-secondary);
+}
+
+div.stat-card {
+    background-color: var(--bg-color-secondary);
+    border-radius: 12px;
+    padding: 15px;
+}
