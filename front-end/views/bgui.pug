@@ -1,0 +1,42 @@
+doctype html  
+html 
+    head 
+        title BrainGenix UI 
+        script(src='axios.min.js') 
+        script(src='chart.js')
+        link(href='img/puzzle-brain.svg' type='image/svg+xml' rel='icon')
+        link(href='css/bulma.css' rel='stylesheet')
+        link(href='css/style.css' rel='stylesheet')
+        link(href='https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap' rel='stylesheet')
+    body 
+        header 
+            div#header-title BrainGenix UI 
+            nav 
+                ul
+                    li Dashboard
+                    li Terminal
+                    li Docs 
+        main
+            div#Dashboard.pg.active
+                h2 Dashboard 
+                p See stats and info:
+                div.columns#nodes-cpu-ram
+                    div.stat-card#nodes.column 
+                        h3 Nodes 
+                        p 
+                            span Total Nodes 
+                            span#total-nodes
+                        ul#node-list 
+                            li Loading...
+                    div.stat-card#ram-usage.column
+                        h3 RAM Usage 
+                        span#ru-total
+                        span#ru-percent
+                        canvas.stat  
+                    div.stat-card#cpu.column
+                        h3 CPU Usage
+                        canvas.stat
+            div#Terminal.pg
+            div#Docs.pg
+    footer 
+        script(src='/js/scripts.js')

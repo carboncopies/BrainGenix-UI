@@ -1,16 +1,27 @@
 /* COLOR PALETTE: https://colorhunt.co/palette/293554 */
+/** 
+ * BRAINGENIX UI STYLESHEET
+*/
+
+/* CSS VARIABLES */
 :root {
     --bg-color-primary: #3b3844;
     --bg-color-secondary: #161518;
     --brand-color-primary: #37a843;
-    --brand-color-secondary: #8244d0;
+    --brand-color-secondary: #9d4dff;
     --text-color-primary: #f2f2f7;
     --text-color-secondary: #b5b5b8;
     --font-family-primary: Quicksand;
+    --border-primary: #696969;
+}
+
+/* GENERAL STYLING */
+::selection {
+    background-color: rgba(255, 255, 255, .1);
 }
 
 body {
-    background-color: var(--bg-color-primary);
+    background-color: black;
     font-family: var(--font-family-primary);
     color: var(--text-color-primary);
 }
@@ -23,8 +34,111 @@ h4, h5, h6 {
     color: var(--brand-color-secondary);
 }
 
+/* HEADER */
+header {
+    background-color: var(--bg-color-secondary);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 52px;
+    border-bottom: .5px solid var(--border-primary);
+    padding: 3px 15px;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+header div#header-title {
+    font-size: 18px;
+    display: inline-block;
+    line-height: 42px;
+    height: 42px;
+    vertical-align: top;
+}
+
+header nav {
+    display: inline-block;
+    vertical-align: top;
+}
+
+header ul {
+    list-style: none;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    margin-left: 35px;
+}
+
+header ul li {
+    display: inline-block;
+    color: var(--text-color-primary);
+    margin: 0 5px;
+    cursor: pointer;
+    position: relative;
+    transition: 200ms;
+    line-height: 42px;
+    height: 42px;
+}
+
+header ul li:hover {
+    color: var(--brand-color-secondary);
+    top: -.5px;
+    left: .5px;
+    transition: 200ms;
+}
+
+main {
+    display: block;
+    padding: 15px;
+    box-sizing: border-box;
+    margin-top: 52px;
+    height: calc(100vh - 52px);
+}
+
+.pg {
+    position: fixed;
+    top: 100vh;
+    height: calc(100vh - 90px);
+    width: calc(100vw - 40px);
+    max-width: 960px;
+    background-color: var(--bg-color-secondary);
+    border: .5px solid var(--border-primary);
+    transition: 500ms;
+    border-radius: 7px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    transform: scale(.8) rotateX(90deg);
+    box-sizing: border-box; 
+    padding: 15px;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.pg::-webkit-scrollbar {
+    display: none;
+}
+
+.pg.active {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    transform: scale(1) rotateX(0deg);
+    transition: 500ms;
+}
+
+div#nodes-cpu-ram {
+    margin-top: 15px;
+    padding: 0 9.5px;
+}
+
 div.stat-card {
     background-color: var(--bg-color-secondary);
-    border-radius: 12px;
+    border-radius: 7px;
     padding: 15px;
+    border: .5px solid var(--border-primary);
+    margin: 5px;
 }
