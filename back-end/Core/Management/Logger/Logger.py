@@ -7,6 +7,7 @@ import inspect
 import os
 import pymysql
 import socket
+import gzip
 
 '''
 Name: SysLog

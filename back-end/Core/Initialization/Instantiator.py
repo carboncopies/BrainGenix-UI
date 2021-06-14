@@ -46,7 +46,7 @@ def InstantiateZK(Logger, ZookeeperConfig): # Instantiates Zookeeper #
         Logger.Log(f'Exception: {E}; Running Zookeeper Diagnostics!', 3)
 
         # Run Diagnostics #
-        CanAccessZookeeper(ZookeeperHost, Logger) ###############################################################################
+        CanAccessZookeeper(Zookeeper, Logger) ###############################################################################
         exit()
 
 
@@ -75,7 +75,7 @@ def InstantiateDB(Logger, DBConfig): # Instantiates Database Interface #
         Logger.Log(f'Exception: {E}; Running Database Diagnostics!', 3)
 
         # Run Diagnostics #
-        CanAccessDatabase(Host, Username, Password, Database, Logger) ###############################################################################################
+        CanAccessDatabase(DBConfig, Logger) ###############################################################################################
         exit()
 
 

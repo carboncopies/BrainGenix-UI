@@ -43,7 +43,7 @@ def CheckPing(Host): # Returns True Or False If A Given Address Is Reachable #
         return False
 
 
-def CanAccessDatabase(Host, DatabaseConfig:dict): # Runs Some Diagnostics About The Database Connection #
+def CanAccessDatabase(DatabaseConfig:dict, Logger): # Runs Some Diagnostics About The Database Connection #
 
     # Extract Values From Dictionary #
     Username = str(DatabaseConfig.get('DatabaseUsername'))
