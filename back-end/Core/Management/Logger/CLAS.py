@@ -46,7 +46,7 @@ class CentralizedLoggerAggregationSystem(): # Define Class for CLAS #
         for Item in LogEntries:
             if Item[6] not in Nodes:
                 Nodes.append(Item[6])
-        
+
         # Generate Output Format #
         Output = {}
 

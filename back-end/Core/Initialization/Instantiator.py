@@ -89,7 +89,7 @@ def InstantiateLogger(DBConfig, LoggerConfigDict): # Instantiates Kafka #
     try:
 
         Logger = SysLog(DBConfig, LoggerConfigDict)
-        
+
         # Log Success #
         Logger.Log('Centralized Logging Daemon Started')
 

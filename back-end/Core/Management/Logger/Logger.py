@@ -117,7 +117,7 @@ class SysLog(): # Logger Class #
         DBPassword = str(DatabaseConfig.get('DatabasePassword'))
         DBHost = str(DatabaseConfig.get('DatabaseHost'))
         DBDatabaseName = str(DatabaseConfig.get('DatabaseName'))
-        
+
 
         # Connect To Database #
         self.DatabaseConnection = pymysql.connect(
@@ -239,7 +239,7 @@ class SysLog(): # Logger Class #
         DeleteDateRaw = datetime.datetime.now() - datetime.timedelta(seconds=self.SecondsToKeepLogs)
         DeleteDate = DeleteDateRaw.strftime('%Y-%m-%d %H:%M:%S')
         
-        # Execute Deletion Command # 
+        # Execute Deletion Command #
         self.CheckDelete(DeleteDate)
 
 

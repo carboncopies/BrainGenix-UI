@@ -11,7 +11,7 @@ import json
 Name: Socket Backend Client
 Description: This is the main file for the BrianGenix Socket Based Backend.
 Date-Created: 2021-05-17
-''' 
+'''
 
 class SocketClient(): # Creates A Client Socket System #
 
