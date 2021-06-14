@@ -33,7 +33,7 @@ from Core.Initialization.Instantiator import InstantiateLogger
 
 # Start Uvicorn #
 if __name__ == '__main__':
-    
+
     # Launch UVICorn Instance #
     uvicorn.run("APIServer:API", host="0.0.0.0", port=2001, log_level="info")
     

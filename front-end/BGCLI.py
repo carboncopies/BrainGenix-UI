@@ -2,10 +2,6 @@
 ## This file is part of the BrainGenix Simulation System ##
 ###########################################################
 
-import time
-import uuid
-import atexit
-import json
 import requests
 from requests.sessions import Request
 
