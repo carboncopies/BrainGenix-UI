@@ -72,7 +72,6 @@ class SysLog(): # Logger Class #
 
         # Extract the important values from the dictionary and return them to the main system #
         LogPath = str(ConfigFileDictionary.get('LogPath'))
-        PrintLogText = bool(ConfigFileDictionary.get('PrintLogText'))
         SecondsToKeepLogs = int(ConfigFileDictionary.get('SecondsToKeepLogs'))
         ConsoleOutputEnabled = bool(ConfigFileDictionary.get('ConsoleOutputEnabled'))
 
@@ -126,7 +125,7 @@ class SysLog(): # Logger Class #
             password = DBPassword,
             db = DBDatabaseName
         )
-      
+
         # Create Database Cursor #
         self.LoggerCursor = self.DatabaseConnection.cursor()
 
@@ -223,10 +222,10 @@ class SysLog(): # Logger Class #
             OutDict[LineItem[6]].append(LineItem)
 
         # Return Lines #
-        return OutDict        
+        return OutDict
 
 
-    def CheckDelete(self, DeleteDate:str): # Deletes entries from the Log Table prior to a specific date # 
+    def CheckDelete(self, DeleteDate:str): # Deletes entries from the Log Table prior to a specific date #
         
         # Delete Old Logs #
         DeleteStatement= ("DELETE FROM log WHERE LogDatetime < %s" % DeleteDate)
@@ -235,7 +234,7 @@ class SysLog(): # Logger Class #
 
     def PurgeOldLogs(self): # Automatically Removes Logs As Per The LogFile Retention Policy #
 
-        # Calculate Old Date (Current Date Minus KeepSeconds) # 
+        # Calculate Old Date (Current Date Minus KeepSeconds) #
         DeleteDateRaw = datetime.datetime.now() - datetime.timedelta(seconds=self.SecondsToKeepLogs)
         DeleteDate = DeleteDateRaw.strftime('%Y-%m-%d %H:%M:%S')
         

@@ -134,7 +134,7 @@ def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads
     while not ZookeeperInstance.ZookeeperConnection.exists('/BrainGenix/System/Leader'):
         time.sleep(0.1)
 
-    # Decode Leader Information #    
+    # Decode Leader Information #
     ZookeeperLeaderInformation = ZookeeperInstance.ZookeeperConnection.get('/BrainGenix/System/Leader')[0]
     ZookeeperLeaderInformation = json.loads(ZookeeperLeaderInformation)
     IPAddr = ZookeeperLeaderInformation['IP'].split(':')[0]

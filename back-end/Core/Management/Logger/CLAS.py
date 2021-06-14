@@ -8,7 +8,7 @@
 Name: CLAS
 Description: The Centralized Logger Aggregation System is used by the leader to present a unfied system log across the entire BG cluster.
 Date-Created: 2021-04-25
-''' 
+'''
 
 
 class CentralizedLoggerAggregationSystem(): # Define Class for CLAS #
