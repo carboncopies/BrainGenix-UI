@@ -13,6 +13,7 @@
     --text-color-secondary: #b5b5b8;
     --font-family-primary: Quicksand;
     --border-primary: #696969;
+    --error-primary: #ef6262;
 }
 
 /* GENERAL STYLING */
@@ -20,10 +21,15 @@
     background-color: rgba(255, 255, 255, .1);
 }
 
+html {
+    overflow: hidden;
+}
+
 body {
     background-color: black;
     font-family: var(--font-family-primary);
     color: var(--text-color-primary);
+    overflow-y: hidden;
 }
 
 h1, h2, h3 {
@@ -75,18 +81,39 @@ header ul li {
     margin: 0 5px;
     cursor: pointer;
     position: relative;
-    transition: 200ms;
+    transition: 100ms;
     line-height: 42px;
     height: 42px;
+    top: 0;
+    left: 0; 
 }
 
 header ul li:hover {
     color: var(--brand-color-secondary);
     top: -.5px;
     left: .5px;
+    transition: 100ms;
+}
+
+div.social-links {
+    position: fixed;
+    top: 11px;
+    right: 18px;
+}
+
+div.social-links a {
+    color: var(--text-color-primary);
+    transition: 200ms;
+    position: relative;
+    font-size: 20px;
+}
+
+div.social-links a:hover {
+    color: var(--brand-color-secondary);
     transition: 200ms;
 }
 
+/* CONTENT */
 main {
     display: block;
     padding: 15px;
@@ -110,13 +137,29 @@ main {
     margin: auto;
     transform: scale(.8) rotateX(90deg);
     box-sizing: border-box; 
-    padding: 15px;
-    overflow-y: scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    padding: 0 15px;
+    overflow-y: hidden;
 }
 
-.pg::-webkit-scrollbar {
+div.postfade {
+    background: linear-gradient(transparent, #161518);
+    width: 100%;
+    height: 15px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+div.prefade {
+    background: linear-gradient(#161518, transparent);
+    width: 100%;
+    height: 15px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.pg section::-webkit-scrollbar {
     display: none;
 }
 
@@ -130,15 +173,82 @@ main {
     transition: 500ms;
 }
 
+.pg section {
+    height: 100%;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    padding: 15px 0 35px;
+}
+
 div#nodes-cpu-ram {
     margin-top: 15px;
     padding: 0 9.5px;
 }
 
 div.stat-card {
-    background-color: var(--bg-color-secondary);
+    background-color: rgba(255, 255, 255, .06);
     border-radius: 7px;
     padding: 15px;
     border: .5px solid var(--border-primary);
     margin: 5px;
+}
+
+body div.notification {
+    position: fixed;
+    bottom: 15px;
+    margin-bottom: 0!important;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: calc(100% - 30px);
+    backdrop-filter: blur(5px);
+    background-color: rgba(255, 255, 255, .2);
+    border: .5px solid var(--border-primary);
+    color: var(--text-color-primary);
+    display: none;
+}
+
+body div.notification.active {
+    display: block;
+}
+
+div.close-notification {
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    cursor: pointer;
+    transition: 150ms;
+    opacity: 1;
+}
+
+div.close-notification:hover {
+    opacity: .8;
+    transition: 150ms;
+}
+
+.notify-error {
+    color: var(--error-primary);
+}
+
+span#ru-stats {
+    color: var(--text-color-primary);
+}
+
+#ram-usage canvas.stat {
+    margin-top: 35px;
+}
+
+.xterm .xterm-viewport {
+    overflow-y: hidden;
+}
+
+#terminal {
+    height: calc(100% - 9px);
+    overflow: hidden;
+    margin-top: 5px;
+    border: .5px solid var(--border-primary);
+    border-radius: 4px;
+    padding: 8px;
+    background-color: black;
 }
