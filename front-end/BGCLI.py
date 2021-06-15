@@ -62,6 +62,10 @@ class Client(): # Client For BrainGenix System #
             if CommandString.lower().startswith('scope '):
                 self.Scope = CommandString.split(' ')[1]
                 print(f'Setting Scope To {self.Scope}')
+            
+            elif CommandString.lower() == 'exit':
+                print('Bye.')
+                exit(1)
 
             else:
                 # Get Command Callstack #
@@ -71,8 +75,22 @@ class Client(): # Client For BrainGenix System #
                 Arguments = {}
                 for ArgumentString in CommandString.split(' ')[1:]:
 
-                    ArgumentKey = ArgumentString.split('=')[0]
-                    ArgumentValue = ArgumentString.split('=')[1]
+                    if len(ArgumentString.split('=')) == 2:
+
+                        ArgumentKey = ArgumentString.split('=')[0]
+                        ArgumentValue = ArgumentString.split('=')[1]
+
+                    else:
+
+                        ArgumentValue = ArgumentString
+
+                        # Set Argument Key #
+
+                        if Callstack == 'ls':
+                            ArgumentKey = 'Path'
+                        else:
+                            print('Error: Callstack unknown, please state arg keyval')
+                            ArgumentKey = None
 
                     Arguments.update({ArgumentKey : ArgumentValue})
 
@@ -94,5 +112,5 @@ class Client(): # Client For BrainGenix System #
 
 
 # Instantiate The Client #
-CLI = Client('http://10.1.4.2:2001')
+CLI = Client('http://localhost:2001')
 CLI.Main()
