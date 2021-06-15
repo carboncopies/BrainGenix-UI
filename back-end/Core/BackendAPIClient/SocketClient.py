@@ -19,7 +19,7 @@ class SocketClient(): # Creates A Client Socket System #
 
         # Save Local Pointers #
         self.Logger = Logger
-        self.IP = ConfigParams['IP']
+        self.IP = ConfigParams['IP'] # This needs to be eventually gotten from the ZK Leader, not a cfg file, as leader transitions crash! #
         self.Port = ConfigParams['Port']
 
         # Create Socket Host Variable #
