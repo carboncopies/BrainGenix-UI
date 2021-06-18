@@ -10,8 +10,13 @@
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "axios": "^0.21.1",
+    "bulma": "^0.9.2",
+    "chart.js": "^3.3.2",
     "express": "^4.17.1",
     "nodemon": "^2.0.7",
-    "pug": "^3.0.2"
+    "normalize.css": "^8.0.1",
+    "pug": "^3.0.2",
+    "xterm": "^4.13.0",
+    "xterm-addon-fit": "^0.5.0"
   }
 }
