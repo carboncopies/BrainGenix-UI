@@ -5,15 +5,15 @@
 
 /* CSS VARIABLES */
 :root {
-        --bg-color-primary: #3b3844;
-        --bg-color-secondary: #161518;
-        --brand-color-primary: #37a843;
-        --brand-color-secondary: #9d4dff;
-        --text-color-primary: #f2f2f7;
-        --text-color-secondary: #b5b5b8;
-        --font-family-primary: Quicksand;
-        --border-primary: #696969;
-        --error-primary: #ef6262;
+    --bg-color-primary: #3b3844;
+    --bg-color-secondary: #161518;
+    --brand-color-primary: #37a843;
+    --brand-color-secondary: #9d4dff;
+    --text-color-primary: #f2f2f7;
+    --text-color-secondary: #b5b5b8;
+    --font-family-primary: Quicksand;
+    --border-primary: #696969;
+    --error-primary: #ef6262;
 }
 
 /* GENERAL STYLING */
