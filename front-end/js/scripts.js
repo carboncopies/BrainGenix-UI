@@ -161,41 +161,41 @@ function notify(message, status) {
     let el = document.querySelector("div.notification"),
         t = '<h2>Error</h2>',
         b = '<div class="close-notification" onclick="notify();"><span class="iconify" data-icon="ion-close-circle-outline"></span></div>';
-    if (!message || message === 'quit') {
-        el.classList.remove('active'); 
+    if (!message || message === "quit") {
+        el.classList.remove("active"); 
         return;
     }
     switch(status) {
-        case 'log':
+        case "log":
             t = '<h2 class="notify-log">Log</h2>';
             break;
-        case 'error':
+        case "error":
             t = '<h2 class="notify-error">Error</h2>';
             break;
-        case 'success':
+        case "success":
             t = '<h2 class="notify-success">Success!</h2>';
             break;
     }
-    el.innerHTML = b + t + '<p>' + message + '</p>';
-    el.classList.add('active');
+    el.innerHTML = b + t + "<p>" + message + "</p>";
+    el.classList.add("active");
 }
 
-document.querySelector('div.close-notification').addEventListener('click', () => { notify(); });
+document.querySelector("div.close-notification").addEventListener("click", () => { notify(); });
 
 // router and navigation 
 function navigate(page) {
-    let pgs = document.querySelectorAll('.pg');
+    let pgs = document.querySelectorAll(".pg");
     pgs.forEach(pg => {
-        pg.classList.remove('active');
+        pg.classList.remove("active");
     });
-    document.querySelector('#' + page).classList.add('active');
-    if (page === 'Terminal') {
+    document.querySelector("#" + page).classList.add("active");
+    if (page === "Terminal") {
         // terminal 
         var term = new Terminal();
         var fitAddon = new FitAddon.FitAddon();
         term.loadAddon(fitAddon);
-        term.open(document.getElementById('terminal'));
-        term.write('BrainGenix-UI $ ');
+        term.open(document.getElementById("terminal"));
+        term.write("BrainGenix-UI $ ");
         window.term = term;
         window.fitAddon = fitAddon;
         setTimeout(() => { fitAddon.fit(); }, 250);
