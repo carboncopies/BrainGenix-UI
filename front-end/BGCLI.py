@@ -3,7 +3,6 @@
 ###########################################################
 
 import requests
-from requests.sessions import Request
 
 
 '''
