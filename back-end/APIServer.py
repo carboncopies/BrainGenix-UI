@@ -30,6 +30,10 @@ from Core.BackendAPIClient.SocketClient import SocketClient
 from Core.Initialization.Instantiator import InstantiateZK
 from Core.Initialization.Instantiator import InstantiateLogger
 
+from Core.BackendAPIClient.Auth import AuthenticationManager
+
+
+
 
 # Start Uvicorn #
 if __name__ == '__main__':
@@ -81,7 +85,11 @@ SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
 
 # Connect To NES Server #
 sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
-sNESSocketConnection.BenchmarkConnection()
+#sNESSocketConnection.BenchmarkConnection()
+
+
+# Instantiate Auth Manager #
+sAuthenticationManager = AuthenticationManager(mLogger, DBConfigDict)
 
 
 # Instantiate FastAPI System #
@@ -122,8 +130,27 @@ async def root(RequestJSON: Request):
     ## NOTE: ADD OTHER SCOPES FOR ERS AND STS HERE LATER ##
     else:
         return {'Name':'Error', 'Content':'ScopeError: No Valid Server Is Available To Handle Your Request With The Given Scope. Valid Scopes Are "NES", "ERS", "STS".'}
-    
 
+# Authentication #
+@API.post('/Authenticate')
+async def Authentication(RequestJSON: Request):
+
+    # Decode Incoming JSON #
+    RequestBytes = await RequestJSON.body()
+    CommandScope = json.loads(RequestBytes.decode())
+
+    # Get Uname, Passwd #
+    Username = CommandScope['Username']
+    Password = CommandScope['Password']
+
+    # Check Uname, Passwd #
+    if ((Username == 'Parzival') and (Password == 'Riddle')): ## This needs to be replaced with real auth, not hardcoded ##
+
+        sAuthenticationManager.GenerateToken(Username)
+
+
+
+# Define Test Requests #
 @API.get('/APIServerTest')
 async def RandomNumberTest():
     return {'Name': 'Get Request Test', 'Content' : '"It just works" - Todd Howard'}
