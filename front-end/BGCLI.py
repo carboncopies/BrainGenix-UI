@@ -30,7 +30,7 @@ class Client(): # Client For BrainGenix System #
     '''
 
 
-    def __init__(self, Host:str):
+    def __init__(self, Host:str, Username:str, Password:str):
 
         '''
         Initializes the Client, Authenticates, and waits until connection accepted.
@@ -40,11 +40,16 @@ class Client(): # Client For BrainGenix System #
         self.Host = Host
         self.EndChar = '#'
         self.Hostname = Host.strip('http://').strip('https://')
-        self.Username = 'root'
+        self.Username = Username
 
         # Set Config Parameters #
         self.Scope = ''
 
+        # Authenticate #
+        AuthDict = {'Username': Username,
+                    'Password': Password}
+
+        self.AuthToken = requests.post(self.Host + '/Authenticate', json=AuthDict).json()['Token']
 
     def Main(self): # Main Loop #
 
@@ -95,7 +100,7 @@ class Client(): # Client For BrainGenix System #
                     Arguments.update({ArgumentKey : ArgumentValue})
 
                 # Format As JSON #
-                CommandDict = {'SysName':self.Scope, 'CallStack':Callstack, 'KeywordArgs':Arguments}
+                CommandDict = {'SysName':self.Scope, 'CallStack':Callstack, 'KeywordArgs':Arguments, 'Token':self.AuthToken}
 
                 # Send Command And Get Output #
                 Output = self.ExecuteCommand(CommandDict)
@@ -112,5 +117,5 @@ class Client(): # Client For BrainGenix System #
 
 
 # Instantiate The Client #
-CLI = Client('http://localhost:2001')
+CLI = Client('http://localhost:2001', Username='Parzival', Password='Riddle')
 CLI.Main()
