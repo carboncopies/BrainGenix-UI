@@ -85,7 +85,7 @@ SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
 
 # Connect To NES Server #
 sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
-#sNESSocketConnection.BenchmarkConnection()
+sNESSocketConnection.BenchmarkConnection()
 
 
 # Instantiate Auth Manager #
@@ -119,6 +119,11 @@ async def root(RequestJSON: Request):
     RequestBytes = await RequestJSON.body()
     CommandScope = json.loads(RequestBytes.decode())
 
+    # Check Authentication #
+    TokenStatus = sAuthenticationManager.ValidateToken(CommandScope['Token'])
+    if TokenStatus != 'Valid Token':
+        return {'Name': 'Error', 'Content':TokenStatus}
+
     # Check If Scope Present #
     if 'SysName' not in CommandScope:
         return {'Name':'Error', 'Content':'Scope Not Set, Check SysName Parameter'}
@@ -146,7 +151,16 @@ async def Authentication(RequestJSON: Request):
     # Check Uname, Passwd #
     if ((Username == 'Parzival') and (Password == 'Riddle')): ## This needs to be replaced with real auth, not hardcoded ##
 
-        sAuthenticationManager.GenerateToken(Username)
+        Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
+
+    # Auth Fails #
+    else:
+        
+        # Set Fail Msg #
+        Response = {'Error' : 'Authentication Failure'}
+
+    # Return Response #
+    return Response
 
 
 
