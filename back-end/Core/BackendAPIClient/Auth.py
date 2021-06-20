@@ -6,6 +6,8 @@
 import secrets
 import time
 
+from requests.models import Response
+
 '''
 Name: Auth
 Description: This subsystem is used to handle system authentication for the API Server.
@@ -36,8 +38,30 @@ class AuthenticationManager(): # Handles Auth for API #
         self.Logger.Log('Authentication Manager Initialization Complete')
 
 
+    def ValidateToken(self, Token): # Checks If A Token Is Valid #
 
-    def GenerateToken(self, AssociatedUsername, TokenLifetime=3600, TokenExpires=True, SaveToken=False, TokenLength=262144): # Generate A New Token For Auth #
+        # Check Token #
+        try:
+            AssociatedUsername = self.Tokens[Token]['Username']
+            TokenExpireDate = self.Tokens[Token]['ExpireTime']
+
+            # Check If Token Expired #
+            print(TokenExpireDate, time.time())
+            if time.time() > TokenExpireDate:
+                Response = 'Expired Token'
+            
+            # Valid Token #
+            else:
+                Response = 'Valid Token'
+
+        except KeyError:
+            Response = 'Invalid Token'
+
+        # Return Bool #
+        return Response
+
+
+    def GenerateToken(self, AssociatedUsername, TokenLifetime=3600, TokenExpires=True, SaveToken=False, TokenLength=8192): # Generate A New Token For Auth #
 
         # Log Token Creation #
         self.Logger.Log(f'Creating Token With Following Params For Username: {AssociatedUsername}', 5)
@@ -51,7 +75,8 @@ class AuthenticationManager(): # Handles Auth for API #
 
         # Set Token Metadata #
         ExpireTime = time.time() + TokenLifetime
-        
+
+        # Set Token Metadata #
         Metadata = {
             'ExpireTime' : ExpireTime,
             'TokenExpires' : TokenExpires,
