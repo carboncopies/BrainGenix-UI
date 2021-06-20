@@ -84,7 +84,7 @@ class SocketClient(): # Creates A Client Socket System #
         return self.ResponseDictionary
 
 
-    def BenchmarkConnection(self, NumberCommands = 1000, LogOutput = True): # Runs Connection Benchmark #
+    def BenchmarkConnection(self, NumberCommands = 50, LogOutput = True): # Runs Connection Benchmark #
 
         # If Log Output, Log Output #
         if LogOutput:
