@@ -21,9 +21,22 @@ html
                     li(onclick='navigate("Terminal");') Terminal
                     li(onclick='navigate("Docs");') Docs 
             div.social-links
-                a(href='https://github.com/carboncopies/BrainGenix-UI' target='blank') 
-                    span.iconify(data-icon='akar-icons:github-fill')
+                a(href="#login" title="Not logged in!").invalid
+                    span.iconify(data-icon="bx:bxs-user-circle")
         main
+            aside#sidebar 
+                ul 
+                    li Dashboard 
+                    li Console 
+                    li Menu 1 
+                        ul 
+                            li Menu 1 Item 1
+                            li Submenu 1 
+                                ul 
+                                    li Submenu 1 Item 1 
+                            li Submenu 2 
+                                ul 
+                                    li Submenu 2 Item 1
             div#Dashboard.pg.active
                 div.prefade
                 div.postfade

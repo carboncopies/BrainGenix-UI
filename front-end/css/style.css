@@ -14,6 +14,7 @@
     --font-family-primary: Quicksand;
     --border-primary: #696969;
     --error-primary: #ef6262;
+    --invalid: #c2c36f;
 }
 
 /* GENERAL STYLING */
@@ -97,7 +98,7 @@ header ul li:hover {
 
 div.social-links {
     position: fixed;
-    top: 11px;
+    top: 8px;
     right: 18px;
 }
 
@@ -105,7 +106,15 @@ div.social-links a {
     color: var(--text-color-primary);
     transition: 200ms;
     position: relative;
-    font-size: 20px;
+    font-size: 26px;
+}
+
+div.social-links a.invalid {
+    color: var(--invalid);
+}
+
+div.social-links a.valid {
+    color: var(--brand-color-primary);
 }
 
 div.social-links a:hover {
@@ -126,14 +135,13 @@ main {
     position: fixed;
     top: 100vh;
     height: calc(100vh - 90px);
-    width: calc(100vw - 40px);
-    max-width: 960px;
+    width: calc(100vw - 295px);
     background-color: var(--bg-color-secondary);
     border: .5px solid var(--border-primary);
     transition: 500ms;
     border-radius: 7px;
-    left: 0;
-    right: 0;
+    left: auto;
+    right: 15px;
     margin: auto;
     transform: scale(.8) rotateX(90deg);
     box-sizing: border-box; 
@@ -166,8 +174,8 @@ div.prefade {
 .pg.active {
     position: fixed;
     top: 70px;
-    left: 0;
-    right: 0;
+    left: auto;
+    right: 15px;
     margin: auto;
     transform: scale(1) rotateX(0deg);
     transition: 500ms;
@@ -251,4 +259,18 @@ span#ru-stats {
     border-radius: 4px;
     padding: 8px;
     background-color: black;
+}
+
+aside#sidebar {
+    position: fixed;
+    top: 70px;
+    height: calc(100vh - 90px);
+    width: 250px;
+    background-color: var(--bg-color-secondary);
+    border: .5px solid var(--border-primary);
+    border-radius: 7px;
+    left: 15px;
+    box-sizing: border-box; 
+    padding: 15px;
+    overflow-y: hidden;
 }

@@ -122,39 +122,60 @@ var cpuChart = new Chart(
 const fetchHistory = [];
 let currentFetch = {};
 
-var fetchInt = setInterval(() => {
-    axios.post('http://50.255.24.101:2001/', {
-        SysName: 'NES', 
-        CallStack:'LFTM.SystemTelemetryManager.mAPI_GetAllNodeStats',
-        KeywordArgs: {}
-    }).then(function (response) {
-        // handle success
-        fetchHistory.push(response.data);
-        currentFetch = response.data;
-        let nodeList = '';
-        for (var n in currentFetch.Content) {
-            nodeList += '<li>' + n + '</li>';
-            if (currentFetch 
-                && currentFetch.Content 
-                && currentFetch.Content[n] 
-                && currentFetch.Content[n].RAMUsage) {
-                document.querySelector('span#ru-stats').innerText = currentFetch.Content[n].RAMPercent + '% | ' + currentFetch.Content[n].RAMUsage;
-                ramChart.data.datasets[0].data.push(currentFetch.Content[n].RAMPercent);
-                if (ramChart.data.datasets[0].data.length > 20) {
-                    ramChart.data.datasets[0].data.shift();
-                }
-                ramChart.update();
+var fetchData = () => {
+    if (!!window.localStorage.bgxToken) {
+        axios.post('http://50.255.24.101:2001/', {
+            Token: window.localStorage.bgxToken,
+            SysName: 'NES', 
+            CallStack:'LFTM.SystemTelemetryManager.mAPI_GetAllNodeStats',
+            KeywordArgs: {}
+        }).then(function (response) {
+            // handle success
+            fetchHistory.push(response.data);
+            currentFetch = response.data;
+            if (response.data.Name === "Error") {
+                notify(response.data.Content, 'error');
+                return;
             }
-        }
-        if (!!nodeList) {
-            document.querySelector('#node-list').innerHTML = nodeList;
-        }
-    })
-    .catch(function (error) {
-        clearInterval(fetchInt);
-        notify('The API server cannot be reached!', 'error');
-    });
-}, 75);
+            let nodeList = '',
+                ramArr = [],
+                cpuArr = [],
+                ramAv = 0,
+                cpuAv = 0;
+            for (var n in currentFetch.Content) {
+                nodeList += '<li>' + n + '</li>';
+                if (currentFetch 
+                    && currentFetch.Content 
+                    && currentFetch.Content[n] 
+                    && currentFetch.Content[n].RAMUsage) {
+                    ramArr.push(currentFetch.Content[n].RAMPercent);
+                    ramChart.data.datasets[0].data.push(currentFetch.Content[n].RAMPercent);
+                    if (ramChart.data.datasets[0].data.length > 20) {
+                        ramChart.data.datasets[0].data.shift();
+                    }
+                    ramChart.update();
+                }
+            }
+            ramAv = function() {
+                let total = 0;
+                ramArr.forEach(item => {
+                    total += item;
+                });
+                return Number.parseFloat(total / ramArr.length).toFixed(2);
+            }();
+            document.querySelector('span#ru-stats').innerText = ramAv + '%';
+            if (nodeList !== '') {
+                document.querySelector('#node-list').innerHTML = nodeList;
+            }
+        })
+        .catch(function (error) {
+            notify('API connection error!', 'error');
+            console.log(error);
+        });
+    }
+}
+
+var fetchInt;
 
 // notifications 
 function notify(message, status) {
@@ -200,4 +221,20 @@ function navigate(page) {
         window.fitAddon = fitAddon;
         setTimeout(() => { fitAddon.fit(); }, 250);
     }
+}
+
+function login() {
+    axios.post('http://50.255.24.101:2001/Authenticate', {
+        Username: 'Parzival', 
+        Password:'Riddle'
+    }).then(response => {
+        if (response.data.Token) {
+            window.localStorage.setItem('bgxToken', response.data.Token);
+            fetchInt = setInterval(() => {
+                fetchData();
+            }, 250);
+        }
+    }).catch(err => {
+        console.log(err);
+    });
 }
