@@ -115,52 +115,70 @@ API.add_middleware(
 @API.post('/')
 async def root(RequestJSON: Request):
 
-    # Decode Incoming Command #
-    RequestBytes = await RequestJSON.body()
-    CommandScope = json.loads(RequestBytes.decode())
-
-    # Check Authentication #
-    TokenStatus = sAuthenticationManager.ValidateToken(CommandScope['Token'])
-    if TokenStatus != 'Valid Token':
-        return {'Name': 'Error', 'Content':TokenStatus}
-
-    # Check If Scope Present #
-    if 'SysName' not in CommandScope:
-        return {'Name':'Error', 'Content':'Scope Not Set, Check SysName Parameter'}
+    try:
 
 
-    # Load And Return Command For NES #
-    if CommandScope['SysName'] == 'NES':
-        return sNESSocketConnection.SendRaw(RequestBytes)
-    ## NOTE: ADD OTHER SCOPES FOR ERS AND STS HERE LATER ##
-    else:
-        return {'Name':'Error', 'Content':'ScopeError: No Valid Server Is Available To Handle Your Request With The Given Scope. Valid Scopes Are "NES", "ERS", "STS".'}
+        # Decode Incoming Command #
+        RequestBytes = await RequestJSON.body()
+        CommandScope = json.loads(RequestBytes.decode())
+
+
+        # Check if Token Present #
+        if 'Token' not in CommandScope:
+            return {'Name':'Error', 'Content':'Token not in request!'}
+
+        # Check Authentication #
+        TokenStatus = sAuthenticationManager.ValidateToken(CommandScope['Token'])
+        if TokenStatus != 'Valid Token':
+            return {'Name': 'Error', 'Content':TokenStatus}
+
+        # Check If Scope Present #
+        if 'SysName' not in CommandScope:
+            return {'Name':'Error', 'Content':'Scope Not Set, Check SysName Parameter'}
+
+
+        # Load And Return Command For NES #
+        if CommandScope['SysName'] == 'NES':
+            return sNESSocketConnection.SendRaw(RequestBytes)
+        ## NOTE: ADD OTHER SCOPES FOR ERS AND STS HERE LATER ##
+        else:
+            return {'Name':'Error', 'Content':'ScopeError: No Valid Server Is Available To Handle Your Request With The Given Scope. Valid Scopes Are "NES", "ERS", "STS".'}
+
+    except Exception as e:
+        print('Error: ' + e)
 
 # Authentication #
 @API.post('/Authenticate')
 async def Authentication(RequestJSON: Request):
 
-    # Decode Incoming JSON #
-    RequestBytes = await RequestJSON.body()
-    CommandScope = json.loads(RequestBytes.decode())
+    try:
 
-    # Get Uname, Passwd #
-    Username = CommandScope['Username']
-    Password = CommandScope['Password']
+        # Decode Incoming JSON #
+        RequestBytes = await RequestJSON.body()
+        CommandScope = json.loads(RequestBytes.decode())
 
-    # Check Uname, Passwd #
-    if ((Username == 'Parzival') and (Password == 'Riddle')): ## This needs to be replaced with real auth, not hardcoded ##
+        #print(CommandScope)
 
-        Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
+        # Get Uname, Passwd #
+        Username = CommandScope['Username']
+        Password = CommandScope['Password']
 
-    # Auth Fails #
-    else:
-        
-        # Set Fail Msg #
-        Response = {'Error' : 'Authentication Failure'}
+        # Check Uname, Passwd #
+        if ((Username == 'Parzival') and (Password == 'Riddle')): ## This needs to be replaced with real auth, not hardcoded ##
 
-    # Return Response #
-    return Response
+            Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
+
+        # Auth Fails #
+        else:
+            
+            # Set Fail Msg #
+            Response = {'Error' : 'Authentication Failure'}
+
+        # Return Response #
+        return Response
+    
+    except Exception as e:
+        print(e)
 
 
 
