@@ -46,7 +46,6 @@ class AuthenticationManager(): # Handles Auth for API #
             TokenExpireDate = self.Tokens[Token]['ExpireTime']
 
             # Check If Token Expired #
-            print(TokenExpireDate, time.time())
             if time.time() > TokenExpireDate:
                 Response = 'Expired Token'
             
@@ -61,7 +60,7 @@ class AuthenticationManager(): # Handles Auth for API #
         return Response
 
 
-    def GenerateToken(self, AssociatedUsername, TokenLifetime=3600, TokenExpires=True, SaveToken=False, TokenLength=8192): # Generate A New Token For Auth #
+    def GenerateToken(self, AssociatedUsername, TokenLifetime=3600, TokenExpires=True, SaveToken=False, TokenLength=512): # Generate A New Token For Auth #
 
         # Log Token Creation #
         self.Logger.Log(f'Creating Token With Following Params For Username: {AssociatedUsername}', 5)
