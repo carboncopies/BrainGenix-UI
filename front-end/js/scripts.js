@@ -67,19 +67,18 @@ var cpuChart = new Chart(
     {
         type: 'line',
         data: {
-            labels: ['', '', '', '', '', '', '', '', '', ''],
+            labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
             datasets: [{
-                max: 100,
-                label: 'CPU Usage (%)',
+                label: '',
                 backgroundColor: 'rgba(55, 168, 67, .2)',
                 pointBackgroundColor: '#37a843',
                 borderColor: '#37a843',
                 borderWidth: 1,
                 color: '#fff',
                 pointRadius: 0,
-                // cubicInterpolationMode: 'monotone',
+                cubicInterpolationMode: 'monotone',
                 pointHoverRadius: 2,
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 fill: {
                     target: 'origin',
                     below: 'rgba(55, 168, 67, .2)'
@@ -87,11 +86,19 @@ var cpuChart = new Chart(
             }]
         },
         options: {
+            plugins: {
+                legend: {
+                    display: false
+                },
+            },
             scales: {
                 y: {
                     stacked: true,
                     grid: {
-                        color: 'transparent'
+                        color: 'rgba(255, 255, 255, .2)'
+                    },
+                    gridLines: {
+                        display: false
                     },
                     min: 0,
                     max: 100
@@ -122,39 +129,60 @@ var cpuChart = new Chart(
 const fetchHistory = [];
 let currentFetch = {};
 
-var fetchInt = setInterval(() => {
-    axios.post('http://50.255.24.101:2001/', {
-        SysName: 'NES', 
-        CallStack:'LFTM.SystemTelemetryManager.mAPI_GetAllNodeStats',
-        KeywordArgs: {}
-    }).then(function (response) {
-        // handle success
-        fetchHistory.push(response.data);
-        currentFetch = response.data;
-        let nodeList = '';
-        for (var n in currentFetch.Content) {
-            nodeList += '<li>' + n + '</li>';
-            if (currentFetch 
-                && currentFetch.Content 
-                && currentFetch.Content[n] 
-                && currentFetch.Content[n].RAMUsage) {
-                document.querySelector('span#ru-stats').innerText = currentFetch.Content[n].RAMPercent + '% | ' + currentFetch.Content[n].RAMUsage;
-                ramChart.data.datasets[0].data.push(currentFetch.Content[n].RAMPercent);
-                if (ramChart.data.datasets[0].data.length > 20) {
-                    ramChart.data.datasets[0].data.shift();
-                }
-                ramChart.update();
+var fetchData = () => {
+    if (!!window.localStorage.bgxToken) {
+        axios.post('http://50.255.24.101:2001/', {
+            Token: window.localStorage.bgxToken,
+            SysName: 'NES', 
+            CallStack:'LFTM.SystemTelemetryManager.GetAllNodeStats',
+            KeywordArgs: {}
+        }).then(function (response) {
+            // handle success
+            fetchHistory.push(response.data);
+            currentFetch = response.data;
+            if (response.data.Name === "Error") {
+                notify(response.data.Content, 'error');
+                return;
             }
-        }
-        if (!!nodeList) {
-            document.querySelector('#node-list').innerHTML = nodeList;
-        }
-    })
-    .catch(function (error) {
-        clearInterval(fetchInt);
-        notify('The API server cannot be reached!', 'error');
-    });
-}, 75);
+            let nodeList = '',
+                ramArr = [],
+                cpuArr = [],
+                ramAv = 0,
+                cpuAv = 0;
+            for (var n in currentFetch.Content) {
+                nodeList += '<li>' + n + '</li>';
+                if (currentFetch 
+                    && currentFetch.Content 
+                    && currentFetch.Content[n] 
+                    && currentFetch.Content[n].RAMUsage) {
+                    ramArr.push(currentFetch.Content[n].RAMPercent);
+                    ramChart.data.datasets[0].data.push(currentFetch.Content[n].RAMPercent);
+                    if (ramChart.data.datasets[0].data.length > 20) {
+                        ramChart.data.datasets[0].data.shift();
+                    }
+                    ramChart.update();
+                }
+            }
+            ramAv = function() {
+                let total = 0;
+                ramArr.forEach(item => {
+                    total += item;
+                });
+                return Number.parseFloat(total / ramArr.length).toFixed(2);
+            }();
+            document.querySelector('span#ru-stats').innerText = ramAv + '%';
+            if (nodeList !== '') {
+                document.querySelector('#node-list').innerHTML = nodeList;
+            }
+        })
+        .catch(function (error) {
+            notify('API connection error!', 'error');
+            console.log(error);
+        });
+    }
+}
+
+var fetchInt;
 
 // notifications 
 function notify(message, status) {
@@ -189,7 +217,7 @@ function navigate(page) {
         pg.classList.remove('active');
     });
     document.querySelector('#' + page).classList.add('active');
-    if (page === 'Terminal') {
+    if (page === 'Console') {
         // terminal 
         var term = new Terminal();
         var fitAddon = new FitAddon.FitAddon();
@@ -199,5 +227,34 @@ function navigate(page) {
         window.term = term;
         window.fitAddon = fitAddon;
         setTimeout(() => { fitAddon.fit(); }, 250);
+    }
+}
+
+function login() {
+    document.querySelector('#login-button').classList.add('is-loading');
+    axios.post('http://50.255.24.101:2001/Authenticate', {
+        Username: document.querySelector('#username').value, 
+        Password: document.querySelector('#password').value
+    }).then(response => {
+        if (response.data.Token) {
+            document.querySelector('#login-button').classList.remove('is-loading');
+            document.querySelector('#login-modal').classList.remove('is-active');
+            window.localStorage.setItem('bgxToken', response.data.Token);
+            // fetchInt = setInterval(() => {
+            //     fetchData();
+            // }, 250);
+            fetchData();
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+}
+
+function toggleLoginModal() {
+    var loginModal = document.querySelector('#login-modal');
+    if (!loginModal.classList.contains('is-active')) {
+        loginModal.classList.add('is-active');
+    } else {
+        loginModal.classList.remove('is-active');
     }
 }

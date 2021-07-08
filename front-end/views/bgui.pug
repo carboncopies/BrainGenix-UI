@@ -15,21 +15,36 @@ html
     body 
         header 
             div#header-title BrainGenix UI 
-            nav 
-                ul
-                    li(onclick='navigate("Dashboard");') Dashboard
-                    li(onclick='navigate("Terminal");') Terminal
-                    li(onclick='navigate("Docs");') Docs 
             div.social-links
-                a(href='https://github.com/carboncopies/BrainGenix-UI' target='blank') 
-                    span.iconify(data-icon='akar-icons:github-fill')
+                a(href="#login" title="Not logged in!" onclick="toggleLoginModal();").invalid
+                    span.iconify(data-icon="bx:bxs-user-circle")
         main
+            aside#sidebar 
+                ul 
+                    li(onclick='navigate("Dashboard");') 
+                        span Dashboard 
+                    li(onclick='navigate("Console");') 
+                        span Console 
+                    li 
+                        span Menu 1 
+                        ul 
+                            li 
+                                span Menu 1 Item 1
+                            li 
+                                span Submenu 1 
+                                ul 
+                                    li 
+                                        span Submenu 1 Item 1 
+                            li 
+                                span Submenu 2 
+                                ul 
+                                    li 
+                                        span Submenu 2 Item 1
             div#Dashboard.pg.active
                 div.prefade
                 div.postfade
                 section
                     h2 Dashboard 
-                    p See stats and info:
                     div.columns#nodes-cpu-ram
                         div.stat-card#nodes.column 
                             h3 Nodes 
@@ -37,19 +52,21 @@ html
                                 span Total Nodes 
                                 span#total-nodes
                             ul#node-list 
-                                li Loading...
+                                li example-node-1 
+                                li example-node-2 
+                                li lady-liberty-83LL
+                        div.stat-card#cpu.column
+                            h3 CPU Usage
+                            canvas.stat
                         div.stat-card#ram-usage.column
                             h3 RAM Usage 
                                 span#ru-stats Loading...
                             canvas.stat  
-                        div.stat-card#cpu.column
-                            h3 CPU Usage
-                            canvas.stat
-            div#Terminal.pg
+            div#Console.pg
                 div.prefade
                 div.postfade
                 section
-                    h2 Terminal 
+                    h2 Console 
                     div#terminal
             div#Docs.pg
                 div.prefade
@@ -58,6 +75,16 @@ html
                     h2 Docs 
                     p Add docs here...
     footer 
+        div#login-modal.modal 
+            div.modal-background 
+            div.modal-content 
+                div.control 
+                    input#username.input(type='text')
+                div.control 
+                    input#password.input(type='text')
+                div.control 
+                    button#login-button.button.is-primary(onclick='login();') Login
+            button.modal-close.is-large(onclick='toggleLoginModal();')
         div.notification 
             div.close-notification
                 span.iconify(data-icon='ion-close-circle-outline') 
