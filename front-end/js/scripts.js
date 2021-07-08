@@ -67,19 +67,18 @@ var cpuChart = new Chart(
     {
         type: 'line',
         data: {
-            labels: ['', '', '', '', '', '', '', '', '', ''],
+            labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
             datasets: [{
-                max: 100,
-                label: 'CPU Usage (%)',
+                label: '',
                 backgroundColor: 'rgba(55, 168, 67, .2)',
                 pointBackgroundColor: '#37a843',
                 borderColor: '#37a843',
                 borderWidth: 1,
                 color: '#fff',
                 pointRadius: 0,
-                // cubicInterpolationMode: 'monotone',
+                cubicInterpolationMode: 'monotone',
                 pointHoverRadius: 2,
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 fill: {
                     target: 'origin',
                     below: 'rgba(55, 168, 67, .2)'
@@ -87,11 +86,19 @@ var cpuChart = new Chart(
             }]
         },
         options: {
+            plugins: {
+                legend: {
+                    display: false
+                },
+            },
             scales: {
                 y: {
                     stacked: true,
                     grid: {
-                        color: 'transparent'
+                        color: 'rgba(255, 255, 255, .2)'
+                    },
+                    gridLines: {
+                        display: false
                     },
                     min: 0,
                     max: 100
@@ -127,7 +134,7 @@ var fetchData = () => {
         axios.post('http://50.255.24.101:2001/', {
             Token: window.localStorage.bgxToken,
             SysName: 'NES', 
-            CallStack:'LFTM.SystemTelemetryManager.mAPI_GetAllNodeStats',
+            CallStack:'LFTM.SystemTelemetryManager.GetAllNodeStats',
             KeywordArgs: {}
         }).then(function (response) {
             // handle success
@@ -210,7 +217,7 @@ function navigate(page) {
         pg.classList.remove('active');
     });
     document.querySelector('#' + page).classList.add('active');
-    if (page === 'Terminal') {
+    if (page === 'Console') {
         // terminal 
         var term = new Terminal();
         var fitAddon = new FitAddon.FitAddon();
@@ -224,17 +231,30 @@ function navigate(page) {
 }
 
 function login() {
+    document.querySelector('#login-button').classList.add('is-loading');
     axios.post('http://50.255.24.101:2001/Authenticate', {
-        Username: 'Parzival', 
-        Password:'Riddle'
+        Username: document.querySelector('#username').value, 
+        Password: document.querySelector('#password').value
     }).then(response => {
         if (response.data.Token) {
+            document.querySelector('#login-button').classList.remove('is-loading');
+            document.querySelector('#login-modal').classList.remove('is-active');
             window.localStorage.setItem('bgxToken', response.data.Token);
-            fetchInt = setInterval(() => {
-                fetchData();
-            }, 250);
+            // fetchInt = setInterval(() => {
+            //     fetchData();
+            // }, 250);
+            fetchData();
         }
     }).catch(err => {
         console.log(err);
     });
+}
+
+function toggleLoginModal() {
+    var loginModal = document.querySelector('#login-modal');
+    if (!loginModal.classList.contains('is-active')) {
+        loginModal.classList.add('is-active');
+    } else {
+        loginModal.classList.remove('is-active');
+    }
 }
