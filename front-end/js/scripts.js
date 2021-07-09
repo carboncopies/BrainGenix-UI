@@ -16,10 +16,10 @@ var ramChart = new Chart(
                 cubicInterpolationMode: 'monotone',
                 pointHoverRadius: 2,
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                fill: {
-                    target: 'origin',
-                    below: 'rgba(55, 168, 67, .2)'
-                }
+                // fill: {
+                //     target: 'origin',
+                //     below: 'rgba(55, 168, 67, .2)'
+                // }
             }]
         },
         options: {
@@ -47,12 +47,12 @@ var ramChart = new Chart(
                 }
             },
             animation: {
-                duration: 0 // general animation time
+                duration: 10 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
             },
-            responsiveAnimationDuration: 0, // animation duration after a resize
+            responsiveAnimationDuration: 200, // animation duration after a resize
             elements: {
                 line: {
                     tension: 0 // disables bezier curves
@@ -79,10 +79,10 @@ var cpuChart = new Chart(
                 cubicInterpolationMode: 'monotone',
                 pointHoverRadius: 2,
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                fill: {
-                    target: 'origin',
-                    below: 'rgba(55, 168, 67, .2)'
-                }
+                // fill: {
+                //     target: 'origin',
+                //     below: 'rgba(55, 168, 67, .2)'
+                // }
             }]
         },
         options: {
@@ -110,12 +110,12 @@ var cpuChart = new Chart(
                 }
             },
             animation: {
-                duration: 0 // general animation time
+                duration: 10 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
             },
-            responsiveAnimationDuration: 0, // animation duration after a resize
+            responsiveAnimationDuration: 200, // animation duration after a resize
             elements: {
                 line: {
                     tension: 0 // disables bezier curves
@@ -128,8 +128,18 @@ var cpuChart = new Chart(
 // fetch content
 const fetchHistory = [];
 let currentFetch = {};
+let fetchInt;
+let fetchRate = 250;
+const totalAv = function(arr) {
+    let total = 0;
+    arr.forEach(item => {
+        total += item;
+    });
+    return Number.parseFloat(total / arr.length).toFixed(2);
+};
+let activeNodes = [];
 
-var fetchData = () => {
+var fetchData = (cmd) => {
     if (!!window.localStorage.bgxToken) {
         axios.post('http://50.255.24.101:2001/', {
             Token: window.localStorage.bgxToken,
@@ -138,10 +148,19 @@ var fetchData = () => {
             KeywordArgs: {}
         }).then(function (response) {
             // handle success
+            if (cmd === 'init' && response.data && response.data.Content !== "Invalid Token") {
+                toggleLoginModal();
+                fetchInt = setInterval(() => {
+                    fetchData();
+                }, fetchRate);
+            }
             fetchHistory.push(response.data);
             currentFetch = response.data;
             if (response.data.Name === "Error") {
-                notify(response.data.Content, 'error');
+                if (cmd !== 'init') {
+                    notify(response.data.Content, 'error');
+                }
+                clearInterval(fetchInt);
                 return;
             }
             let nodeList = '',
@@ -150,29 +169,44 @@ var fetchData = () => {
                 ramAv = 0,
                 cpuAv = 0;
             for (var n in currentFetch.Content) {
-                nodeList += '<li>' + n + '</li>';
+                if (!activeNodes.includes(n)) {
+                    activeNodes.push(n);
+                    nodeList += '<li>' + n + '</li>';
+                }
+                // add ram 
                 if (currentFetch 
                     && currentFetch.Content 
                     && currentFetch.Content[n] 
                     && currentFetch.Content[n].RAMUsage) {
                     ramArr.push(currentFetch.Content[n].RAMPercent);
-                    ramChart.data.datasets[0].data.push(currentFetch.Content[n].RAMPercent);
-                    if (ramChart.data.datasets[0].data.length > 20) {
-                        ramChart.data.datasets[0].data.shift();
-                    }
-                    ramChart.update();
+                }
+                if (currentFetch 
+                    && currentFetch.Content 
+                    && currentFetch.Content[n] 
+                    && currentFetch.Content[n].CPUUsage) {
+                    cpuArr.push(...currentFetch.Content[n].CPUUsage);
                 }
             }
-            ramAv = function() {
-                let total = 0;
-                ramArr.forEach(item => {
-                    total += item;
-                });
-                return Number.parseFloat(total / ramArr.length).toFixed(2);
-            }();
-            document.querySelector('span#ru-stats').innerText = ramAv + '%';
+            // update chart and html with averaged ram data
+            ramChart.data.datasets[0].data.push(totalAv(ramArr));
+            if (ramChart.data.datasets[0].data.length > 20) {
+                ramChart.data.datasets[0].data.shift();
+            }
+            ramChart.update();
+            document.querySelector('span#ru-stats').innerText = totalAv(ramArr) + '%';
+            // update chart and html with averaged cpu data
+            cpuChart.data.datasets[0].data.push(totalAv(cpuArr));
+            if (cpuChart.data.datasets[0].data.length > 20) {
+                cpuChart.data.datasets[0].data.shift();
+            }
+            cpuChart.update();
+            document.querySelector('span#cu-stats').innerText = totalAv(cpuArr) + '%';
             if (nodeList !== '') {
-                document.querySelector('#node-list').innerHTML = nodeList;
+                if (document.querySelector('#node-list').innerText === 'Loading...') {
+                    document.querySelector('#node-list').innerHTML = nodeList 
+                } else {
+                    document.querySelector('#node-list').innerHTML += nodeList;
+                }
             }
         })
         .catch(function (error) {
@@ -181,8 +215,6 @@ var fetchData = () => {
         });
     }
 }
-
-var fetchInt;
 
 // notifications 
 function notify(message, status) {
@@ -202,6 +234,9 @@ function notify(message, status) {
             break;
         case 'success':
             t = '<h2 class="notify-success">Success!</h2>';
+            break;
+        case 'info':
+            t = '<h2 class="notify-info">Info...</h2>';
             break;
     }
     el.innerHTML = b + t + '<p>' + message + '</p>';
@@ -236,13 +271,16 @@ function login() {
         Username: document.querySelector('#username').value, 
         Password: document.querySelector('#password').value
     }).then(response => {
-        if (response.data.Token) {
+        if (response.data && response.data.Token) {
             document.querySelector('#login-button').classList.remove('is-loading');
             document.querySelector('#login-modal').classList.remove('is-active');
             window.localStorage.setItem('bgxToken', response.data.Token);
-            // fetchInt = setInterval(() => {
-            //     fetchData();
-            // }, 250);
+            if (fetchInt) {
+                clearInterval(fetchInt);
+            }
+            fetchInt = setInterval(() => {
+                fetchData();
+            }, fetchRate);
             fetchData();
         }
     }).catch(err => {
@@ -257,4 +295,10 @@ function toggleLoginModal() {
     } else {
         loginModal.classList.remove('is-active');
     }
+}
+
+// upon page load JS determines if a bgxToken exists
+if (window.localStorage.bgxToken) {
+    // if so an attempt to fetch data is made:
+    fetchData('init');
 }
