@@ -8,13 +8,65 @@
     --bg-color-primary: #3b3844;
     --bg-color-secondary: #161518;
     --brand-color-primary: #37a843;
+    --brand-color-primary-hover: #24742c;
     --brand-color-secondary: #9d4dff;
+    --brand-color-secondary-hover: #763cbd;
     --text-color-primary: #f2f2f7;
     --text-color-secondary: #b5b5b8;
     --font-family-primary: Quicksand;
     --border-primary: #696969;
     --error-primary: #ef6262;
     --invalid: #c2c36f;
+}
+
+/* BULMA OVERRIDES */
+.input {
+    box-shadow: inset 0 0.0625em 0.125em rgb(10 10 10 / 5%);
+    max-width: 100%;
+    width: 100%;
+    background-color: transparent;
+    color: white;
+    margin: 5px 0;
+}
+
+.input::placeholder, 
+.textarea::placeholder {
+    font-style: italic;
+    color: white;
+}
+
+.button.is-primary {
+    background-color: var(--brand-color-primary);
+    transition: 100ms;
+}
+
+.button.is-primary:hover {
+    background-color: var(--brand-color-primary-hover);
+    transition: 100ms;
+}
+
+#login-button {
+    margin-top: 12px;
+}
+
+.modal-content, .modal-card {
+    overflow: hidden;
+    max-width: 250px;
+    text-align: center;
+    border: .5px solid var(--border-primary);
+    border-radius: 7px;
+    background-color: rgba(255, 255, 255, .06);
+    padding: 20px 15px;
+}
+
+.input:focus, .textarea:focus, .select select:focus, .is-focused.input, .is-focused.textarea, .select select.is-focused, .input:active, .textarea:active, .select select:active, .is-active.input, .is-active.textarea, .select select.is-active {
+    border-color: var(--brand-color-primary);
+    box-shadow: 0 0 0 0.125em rgb(53 220 50 / 27%);
+}
+
+#login-logo {
+    max-height: 40px;
+    margin-bottom: 15px;
 }
 
 /* GENERAL STYLING */
@@ -55,12 +107,15 @@ header {
     user-select: none;
 }
 
-header div#header-title {
+header div#header-logo {
+    position: fixed;
+    top: 6px;
+    left: 15px;
+}
+
+header div#header-logo img {
     font-size: 18px;
-    display: inline-block;
-    line-height: 42px;
-    height: 42px;
-    vertical-align: top;
+    height: 40px;
 }
 
 header nav {
@@ -239,11 +294,11 @@ div.close-notification:hover {
     color: var(--error-primary);
 }
 
-span#ru-stats {
+span#ru-stats, span#cu-stats, span#total-nodes {
     color: var(--text-color-primary);
 }
 
-#ram-usage canvas.stat {
+#ram-usage canvas.stat, #cpu canvas.stat {
     margin-top: 35px;
 }
 

@@ -14,7 +14,8 @@ html
         script(src='xterm-addon-fit.js')
     body 
         header 
-            div#header-title BrainGenix UI 
+            div#header-logo 
+                img(src='/img/bg-web-logo.png')
             div.social-links
                 a(href="#login" title="Not logged in!" onclick="toggleLoginModal();").invalid
                     span.iconify(data-icon="bx:bxs-user-circle")
@@ -48,15 +49,12 @@ html
                     div.columns#nodes-cpu-ram
                         div.stat-card#nodes.column 
                             h3 Nodes 
-                            h4 
-                                span Total Nodes 
                                 span#total-nodes
                             ul#node-list 
-                                li example-node-1 
-                                li example-node-2 
-                                li lady-liberty-83LL
+                                li Loading...
                         div.stat-card#cpu.column
-                            h3 CPU Usage
+                            h3 CPU Usage 
+                                span#cu-stats Loading...
                             canvas.stat
                         div.stat-card#ram-usage.column
                             h3 RAM Usage 
@@ -75,16 +73,17 @@ html
                     h2 Docs 
                     p Add docs here...
     footer 
-        div#login-modal.modal 
+        div#login-modal.modal.is-active
             div.modal-background 
             div.modal-content 
-                div.control 
-                    input#username.input(type='text')
-                div.control 
-                    input#password.input(type='text')
-                div.control 
+                div 
+                    img#login-logo(src='/img/bg-web-logo.png')
+                div
+                    input#username.input(type='text' placeholder='Username')
+                div
+                    input#password.input(type='password' placeholder='Password')
+                div
                     button#login-button.button.is-primary(onclick='login();') Login
-            button.modal-close.is-large(onclick='toggleLoginModal();')
         div.notification 
             div.close-notification
                 span.iconify(data-icon='ion-close-circle-outline') 
