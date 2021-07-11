@@ -47,7 +47,7 @@ var ramChart = new Chart(
                 }
             },
             animation: {
-                duration: 10 // general animation time
+                duration: 250 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
@@ -110,7 +110,7 @@ var cpuChart = new Chart(
                 }
             },
             animation: {
-                duration: 10 // general animation time
+                duration: 250 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
@@ -129,7 +129,7 @@ var cpuChart = new Chart(
 const fetchHistory = [];
 let currentFetch = {};
 let fetchInt;
-let fetchRate = 250;
+let fetchRate = 1000;
 const totalAv = function(arr) {
     let total = 0;
     arr.forEach(item => {
@@ -148,7 +148,7 @@ var fetchData = (cmd) => {
             KeywordArgs: {}
         }).then(function (response) {
             // handle success
-            if (cmd === 'init' && response.data && response.data.Content !== "Invalid Token") {
+            if (cmd === 'init' && response.data && response.data.Content !== "Expired Token") {
                 toggleLoginModal();
                 fetchInt = setInterval(() => {
                     fetchData();
@@ -156,12 +156,16 @@ var fetchData = (cmd) => {
             }
             fetchHistory.push(response.data);
             currentFetch = response.data;
-            if (response.data.Name === "Error") {
+            if (response.data.Name === "Error" && response.data.Content !== "Expired Token") {
                 if (cmd !== 'init') {
                     notify(response.data.Content, 'error');
                 }
                 clearInterval(fetchInt);
                 return;
+            }
+            if (response.data.Name === "Error" && response.data.Content === "Expired Token") {
+                toggleLoginModal();
+                clearInterval(fetchInt);
             }
             let nodeList = '',
                 ramArr = [],
@@ -169,7 +173,7 @@ var fetchData = (cmd) => {
                 ramAv = 0,
                 cpuAv = 0;
             for (var n in currentFetch.Content) {
-                if (!activeNodes.includes(n)) {
+                if (!activeNodes.includes(n) && !Number(n)) {
                     activeNodes.push(n);
                     nodeList += '<li>' + n + '</li>';
                 }
@@ -208,6 +212,7 @@ var fetchData = (cmd) => {
                     document.querySelector('#node-list').innerHTML += nodeList;
                 }
             }
+            document.querySelector('#total-nodes').innerText = activeNodes.length;
         })
         .catch(function (error) {
             notify('API connection error!', 'error');
@@ -245,6 +250,28 @@ function notify(message, status) {
 
 document.querySelector('div.close-notification').addEventListener('click', () => { notify(); });
 
+function loadLogTerm() {
+    var logTerm = new Terminal();
+    var fitAddonLog = new FitAddon.FitAddon();
+    logTerm.loadAddon(fitAddonLog);
+    logTerm.open(document.getElementById('log-term'));
+    logTerm.write('BrainGenix-UI $ ');
+    window.logTerm = logTerm;
+    window.fitAddonLog = fitAddonLog;
+    setTimeout(() => { fitAddonLog.fit(); }, 250);
+}
+
+function loadConsole() {
+    // terminal 
+    var term = new Terminal();
+    var fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    term.write('BrainGenix-UI $ ');
+    window.term = term;
+    window.fitAddon = fitAddon;
+    setTimeout(() => { fitAddon.fit(); }, 250);
+}
 // router and navigation 
 function navigate(page) {
     let pgs = document.querySelectorAll('.pg');
@@ -252,16 +279,12 @@ function navigate(page) {
         pg.classList.remove('active');
     });
     document.querySelector('#' + page).classList.add('active');
+    window.location.hash = '#' + page.toLowerCase();
     if (page === 'Console') {
-        // terminal 
-        var term = new Terminal();
-        var fitAddon = new FitAddon.FitAddon();
-        term.loadAddon(fitAddon);
-        term.open(document.getElementById('terminal'));
-        term.write('BrainGenix-UI $ ');
-        window.term = term;
-        window.fitAddon = fitAddon;
-        setTimeout(() => { fitAddon.fit(); }, 250);
+        loadConsole();
+    }
+    if (page === 'Dashboard') {
+        loadLogTerm();
     }
 }
 
@@ -301,4 +324,9 @@ function toggleLoginModal() {
 if (window.localStorage.bgxToken) {
     // if so an attempt to fetch data is made:
     fetchData('init');
+}
+
+// upon page load if route is home (dashboard) load logTerm
+if (window.location.pathname === '/' || window.location.hash === '#dashboard') {
+    loadLogTerm();
 }
