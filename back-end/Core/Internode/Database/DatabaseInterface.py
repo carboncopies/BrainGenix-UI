@@ -12,6 +12,9 @@ Description: This file creates an interface from BrainGenix to mySQL.
 Date-Created: 2021-01-17
 '''
 
+
+
+
 class DBInterface(): # Interface to MySQL database #
 
     '''
@@ -45,6 +48,9 @@ class DBInterface(): # Interface to MySQL database #
         # Establish DB Connection #
         self.DBConnection = pymysql.connect(host=Host, user=Username, password=Password, db=DatabaseName)
 
+
+
+        #
         self.Logger.Log(f'Connected To DB At {Host}')
 
         # Register Shutdown Function #
