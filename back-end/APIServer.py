@@ -67,25 +67,20 @@ if __name__ == '__main__':
 
 
 # Set Version Information
-Version = '0.0.7'
-Branch = 'dev' # 'dev' or 'rel'
+Version = VersionNumber
+Branch = BranchVersion
 
 
 # Load Config #
-LoggerConfigDict = LoadLoggerConfig(ConfigFilePath = 'Config/LoggerConfig.yaml')
-DBConfigDict = LoadDatabaseConfig(ConfigFilePath = 'Config/DatabaseConfig.yaml')
-ZKConfigDict = LoadZookeeperConfig(ConfigFilePath = 'Config/ZookeeperConfig.yaml')
-MAPIConfigDict = LoadManagementAPIServerConfig(ConfigFilePath = 'Config/ManagementAPIConfig.yaml')
+SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 
 
 # Initialize Logger #
-mLogger = InstantiateLogger(DBConfigDict, LoggerConfigDict)
+mLogger = InstantiateLogger(SystemConfiguration, SystemConfiguration)
 
 
-# Purges The Log Buffer On System Exit #
-@atexit.register
-def CleanLog():
-    mLogger.CleanExit()
+# Instantiate Thread Manager #
+mThreadManagerInstance = ThreadManager(mLogger)
 
 
 # Connect To Zookeeper Service #
@@ -93,7 +88,7 @@ sZookeeper = mThreadManagerInstance.InstantiateZK(mLogger, SystemConfiguration)
 
 
 # Get Socket Client Config #
-SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, MAPIConfigDict)
+SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, SystemConfiguration)
 
 
 # Connect To NES Server #
@@ -102,7 +97,7 @@ sNESSocketConnection.BenchmarkConnection()
 
 
 # Instantiate Auth Manager #
-sAuthenticationManager = AuthenticationManager(mLogger, DBConfigDict)
+sAuthenticationManager = AuthenticationManager(mLogger, SystemConfiguration)
 
 
 # Instantiate FastAPI System #
