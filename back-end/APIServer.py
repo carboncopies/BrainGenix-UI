@@ -76,7 +76,7 @@ SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 
 
 # Initialize Logger #
-mLogger = InstantiateLogger(SystemConfiguration, SystemConfiguration)
+mLogger = InstantiateLogger(SystemConfiguration)
 
 
 # Instantiate Thread Manager #
