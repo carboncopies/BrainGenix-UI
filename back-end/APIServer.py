@@ -9,9 +9,7 @@ Description: This is the file used by the BrainGenix API System to get the serve
 Date-Created: 2021-03-03
 '''
 
-import atexit
 import json
-
 import uvicorn
 import os
 
@@ -20,28 +18,19 @@ from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
 from Core.Initialization.LoadConfig import LoadLocalConfig
 
 from Core.ThreadManager import ThreadManager
 
 from Core.Initialization.Instantiator import InstantiateLogger
 
-from Core.Initialization.CheckLibraries import CheckImports
-
-from Core.Management.Logger.CLAS import CentralizedLoggerAggregationSystem
-
-from Core.Management.API.ManagementAPI import ManagementAPISocketServer
-
 from Core.Internode.Zookeeper.LFTransitionManager import LFTM
 
 from Core.VersionData import VersionNumber
 from Core.VersionData import BranchVersion
 
-
 from Core.BackendAPIClient.SocketClient import GetSocketClientConfig
 from Core.BackendAPIClient.SocketClient import SocketClient
-
 
 from Core.BackendAPIClient.Auth import AuthenticationManager
 
