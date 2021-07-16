@@ -3,7 +3,10 @@
 ###########################################################
 
 import requests
+import readline # Needed for bash-style arrow key interface to input call; DO NOT DELETE THIS #
+
 from requests.sessions import Request
+
 
 
 '''
