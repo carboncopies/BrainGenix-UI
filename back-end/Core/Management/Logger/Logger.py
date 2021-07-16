@@ -2,12 +2,16 @@
 ## This file is part of the BrainGenix Simulation System ##
 ###########################################################
 
+import gzip
 import datetime
 import inspect
 import os
-import pymysql
+import threading
 import socket
-import gzip
+import queue
+
+from Core.Management.Logger.DBLoggerThread import DatabaseLogTransmissionSystem
+from Core.Management.Logger.CLAS import CentralizedLoggerAggregationSystem
 
 '''
 Name: SysLog
@@ -61,7 +65,7 @@ class SysLog(): # Logger Class #
     This is the only function that should be called by an external function, as calling other functions will cause undefined behavior in the logger.
     '''
 
-    def __init__(self, DatabaseConfig:dict, ConfigFileDictionary:dict): # Connect To Database #
+    def __init__(self, SystemConfiguration:dict): # Connect To Database #
 
         '''
         This function is used when the system is starting up, and should not be called anytime after that.
@@ -71,9 +75,16 @@ class SysLog(): # Logger Class #
 
 
         # Extract the important values from the dictionary and return them to the main system #
-        LogPath = str(ConfigFileDictionary.get('LogPath'))
-        SecondsToKeepLogs = int(ConfigFileDictionary.get('SecondsToKeepLogs'))
-        ConsoleOutputEnabled = bool(ConfigFileDictionary.get('ConsoleOutputEnabled'))
+        LogPath = str(SystemConfiguration.get('LogPath'))
+        SecondsToKeepLogs = int(SystemConfiguration.get('SecondsToKeepLogs'))
+        ConsoleOutputEnabled = bool(SystemConfiguration.get('ConsoleOutputEnabled'))
+        self.ConsoleColorEnabled = bool(SystemConfiguration.get('ConsoleColorEnabled'))
+
+        self.SystemConfiguration = SystemConfiguration
+
+        # Logger Config Params #
+        self.LevelColors = SystemConfiguration['LogLevelColors']
+        self.LevelNames = SystemConfiguration['LogLevelNames']
 
 
         # Create Local Log Path Directory #
@@ -86,8 +97,7 @@ class SysLog(): # Logger Class #
 
 
         # Initialize Local Variable Information #
-
-        self.LogBuffer = '[Level] [               Time] [         Module Name] [           Function] [Message]\n'
+        print('[Level] [               Time] [                Thread] [            Module Name] [           Function] [Message]')
         self.PrintEnabled = ConsoleOutputEnabled
         self.CurrentLogLength = 1
         self.LogPath = LogPath
@@ -98,8 +108,6 @@ class SysLog(): # Logger Class #
 
         self.StartTime = str(datetime.datetime.now()).replace(' ', '_')
 
-        print(self.LogBuffer[:-1])
-
 
         # Open Log File #
         self.LogFileName = 'BG.log'
@@ -107,29 +115,51 @@ class SysLog(): # Logger Class #
 
 
         # Perform Database Connection Validation #
-        if DatabaseConfig == None:
+        if SystemConfiguration == None:
             print('Database Configuration Null, Please Check Config File')
 
 
-        # Extract Values From Dictionary #
-        DBUsername = str(DatabaseConfig.get('DatabaseUsername'))
-        DBPassword = str(DatabaseConfig.get('DatabasePassword'))
-        DBHost = str(DatabaseConfig.get('DatabaseHost'))
-        DBDatabaseName = str(DatabaseConfig.get('DatabaseName'))
+        # Create Queues #
+        self.LogQueue = queue.Queue()
+        self.ControlQueue = queue.Queue() # Causes thread exit when item placed in queue
+        self.QueueDBWorker = DatabaseLogTransmissionSystem(self, self.LogQueue, self.ControlQueue, SystemConfiguration)
+        self.QueueDBWorkerThread = threading.Thread(target=self.QueueDBWorker)
+        self.QueueDBWorkerThread.start()
+
+        # Initialize CLAS #
+        self.CLAS = CentralizedLoggerAggregationSystem(self, self.SystemConfiguration)
+
+    def ColorizeText(self, Text, Color): # Colorizes A String Of Text #
+
+        # Get RGB #
+        Red = Color[0]
+        Green = Color[1]
+        Blue = Color[2]
 
 
-        # Connect To Database #
-        self.DatabaseConnection = pymysql.connect(
-            host = DBHost,
-            user = DBUsername,
-            password = DBPassword,
-            db = DBDatabaseName
-        )
+        # Add Colorization Char #
+        PrintString = f'\x1b[38;2;{Red};{Green};{Blue}m'
 
-        # Create Database Cursor #
-        self.LoggerCursor = self.DatabaseConnection.cursor()
+        # Add Text #
+        PrintString += Text
 
-        self.DatabaseWorking = True
+        # Add EndColor Char #
+        PrintString += '\x1b[0m'
+
+        # Output #
+        return PrintString
+
+
+    # Put Log Item In Queue #
+    def EnqueueLogEntry(self, Level, LogTime, CallingModuleName, CallingFunctionName, Message, NodeID):
+        self.LogQueue.put({
+            'LogLevel': Level,
+            'LogDateTime': LogTime,
+            'CallingModule': CallingModuleName,
+            'FunctionName': CallingFunctionName,
+            'LogOutput': Message,
+            'Node': NodeID
+        })
 
 
     def Log(self, Message:str, Level:int=0): # Handles The Log Of An Item #
@@ -143,10 +173,17 @@ class SysLog(): # Logger Class #
 
         +==================================+
         | Level             | Number Value |
-        | Info              | 0            |
-        | Warning           | 1            |
-        | Error (Non fatal) | 2            |
-        | Error (Fatal)     | 3            |
+        | System            | 0            |
+        | Config            | 1            |
+        | Audit             | 2            |
+        | Info              | 3            |
+        | Detail            | 4            |
+        | Fine              | 5            |
+        | Finer             | 6            |
+        | Finest            | 7            |
+        | Warning           | 8            |
+        | Severe (Non Fatal)| 9            |
+        | Fatal             | 10           |
         +==================================+
 
         The error codes will be used to sort the log later, if the log is checked.
@@ -154,105 +191,42 @@ class SysLog(): # Logger Class #
         Please note that if you use custom codes, another plugin may conflict with these, so you may want to make it user configurable.
         '''
 
+        # Get time first thing when called to make it more precise (not sure if that's needed, but it seems to have no drawbacks) #
+        LogTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         # Reformat Log For Human Readabillity #
         Level = str(Level)
 
         CallStack = inspect.stack()
         CallingModuleName = CallStack[1][1]
         CallingFunctionName = CallStack[1][3]
+        ThreadName = threading.current_thread().name
 
-        LogTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        LogString = f'[{Level.rjust(5, " ")}] [{LogTime}] [{CallingModuleName.split("/")[-1].split(".")[0].rjust(20, " ")}] [{CallingFunctionName.rjust(19, " ")}] {Message}\n'
-        self.LogBuffer += LogString
+        LogString = f'[{Level.rjust(5, " ")}] [{LogTime}] [{ThreadName.rjust(24, " ")}] [{CallingModuleName.split("/")[-1].split(".")[0].rjust(23, " ")}] [{CallingFunctionName.rjust(19, " ")}] {Message}'
+
 
         if self.PrintEnabled:
-            print(LogString[:-1])
+
+            # Colorize Text #
+            if self.ConsoleColorEnabled:
+
+                # Log With Colors #
+                Msg = self.ColorizeText(LogString, self.LevelColors[int(Level)])
+                print(Msg)
+
+            # Print Text Normally #
+            else:
+                print(LogString)
 
 
-        if self.DatabaseWorking == False:
-
-            self.LogFileObject.write(self.LogBuffer)
-            self.LogBuffer = ''
-
-        else:
-
-            self.LogFileObject.write(self.LogBuffer)
-            #
-            # Write data *from the logbuffer* into the database here
-            #
-
-            insertStatement= ("INSERT INTO log(LogLevel,LogDatetime,CallingModule,FunctionName,LogOutput,Node) VALUES (%s, %s, \"%s\", \"%s\", \"%s\", \"%s\")")
-
-            val = (Level, str(LogTime), CallingModuleName.split("/")[-1].split(".")[0], CallingFunctionName, Message, str(self.NodeID))
-
-            self.LoggerCursor.execute(insertStatement,val)
-
-            
-            self.LogBuffer = ''
-
-
-    def PullLog(self, NumberOfLines:int): # Pull n most recent entries from the log table #
-        
-        # Pull Lines From Database #
-        PullStatement= ("SELECT * FROM log LIMIT %d" % int(NumberOfLines))
-        self.LoggerCursor.execute(PullStatement)
-        
-        Rows = self.LoggerCursor.fetchall()
-
-        # Return Them #
-        return Rows
-
-
-    def PullSort(self, NumberOfLines:int): # Pull Set Number Of Lines And Return A Sorted Output Dictionary #
-
-        # Pull Lines Here #
-        Rows = self.PullLog(NumberOfLines)
-        NodesInList = []
-
-        # Sort Lines #
-        for LineItem in Rows:
-            if LineItem[6] not in NodesInList:
-                NodesInList.append(LineItem[6])
-
-        OutDict = {}
-        for NodeHostName in NodesInList:
-            OutDict.update({NodeHostName : []})
-
-        for LineItem in Rows:
-            OutDict[LineItem[6]].append(LineItem)
-
-        # Return Lines #
-        return OutDict
-
-
-    def CheckDelete(self, DeleteDate:str): # Deletes entries from the Log Table prior to a specific date #
-        
-        # Delete Old Logs #
-        DeleteStatement= ("DELETE FROM log WHERE LogDatetime < %s" % DeleteDate)
-        self.LoggerCursor.execute(DeleteStatement)
-
-
-    def PurgeOldLogs(self): # Automatically Removes Logs As Per The LogFile Retention Policy #
-
-        # Calculate Old Date (Current Date Minus KeepSeconds) #
-        DeleteDateRaw = datetime.datetime.now() - datetime.timedelta(seconds=self.SecondsToKeepLogs)
-        DeleteDate = DeleteDateRaw.strftime('%Y-%m-%d %H:%M:%S')
-        
-        # Execute Deletion Command #
-        self.CheckDelete(DeleteDate)
+        self.EnqueueLogEntry(Level, str(LogTime), CallingModuleName, CallingFunctionName, Message, str(self.NodeID))
 
 
     def CleanExit(self): # Create Logger Shutdown Command #
 
-        # Check LogBuffer, Flush #
-        if self.LogBuffer != '':
-            self.LogFileObject.write(self.LogBuffer)
-
-
         # Destroy Connection To Database #
-        print('Destroying Database Connector')
-        self.DatabaseConnection.close()
-        print('Destroyed Database Connector')
+        self.ControlQueue.put('stahp!')
+        self.QueueDBWorkerThread.join()
 
         # Return Done #
         return
