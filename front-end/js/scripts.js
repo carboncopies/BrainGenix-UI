@@ -16,10 +16,10 @@ var ramChart = new Chart(
                 cubicInterpolationMode: 'monotone',
                 pointHoverRadius: 2,
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                fill: {
-                    target: 'origin',
-                    below: 'rgba(55, 168, 67, .2)'
-                }
+                // fill: {
+                //     target: 'origin',
+                //     below: 'rgba(55, 168, 67, .2)'
+                // }
             }]
         },
         options: {
@@ -47,12 +47,12 @@ var ramChart = new Chart(
                 }
             },
             animation: {
-                duration: 0 // general animation time
+                duration: 10 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
             },
-            responsiveAnimationDuration: 0, // animation duration after a resize
+            responsiveAnimationDuration: 200, // animation duration after a resize
             elements: {
                 line: {
                     tension: 0 // disables bezier curves
@@ -67,31 +67,38 @@ var cpuChart = new Chart(
     {
         type: 'line',
         data: {
-            labels: ['', '', '', '', '', '', '', '', '', ''],
+            labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
             datasets: [{
-                max: 100,
-                label: 'CPU Usage (%)',
+                label: '',
                 backgroundColor: 'rgba(55, 168, 67, .2)',
                 pointBackgroundColor: '#37a843',
                 borderColor: '#37a843',
                 borderWidth: 1,
                 color: '#fff',
                 pointRadius: 0,
-                // cubicInterpolationMode: 'monotone',
+                cubicInterpolationMode: 'monotone',
                 pointHoverRadius: 2,
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                fill: {
-                    target: 'origin',
-                    below: 'rgba(55, 168, 67, .2)'
-                }
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                // fill: {
+                //     target: 'origin',
+                //     below: 'rgba(55, 168, 67, .2)'
+                // }
             }]
         },
         options: {
+            plugins: {
+                legend: {
+                    display: false
+                },
+            },
             scales: {
                 y: {
                     stacked: true,
                     grid: {
-                        color: 'transparent'
+                        color: 'rgba(255, 255, 255, .2)'
+                    },
+                    gridLines: {
+                        display: false
                     },
                     min: 0,
                     max: 100
@@ -103,12 +110,12 @@ var cpuChart = new Chart(
                 }
             },
             animation: {
-                duration: 0 // general animation time
+                duration: 10 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
             },
-            responsiveAnimationDuration: 0, // animation duration after a resize
+            responsiveAnimationDuration: 200, // animation duration after a resize
             elements: {
                 line: {
                     tension: 0 // disables bezier curves
@@ -121,40 +128,93 @@ var cpuChart = new Chart(
 // fetch content
 const fetchHistory = [];
 let currentFetch = {};
-
-var fetchInt = setInterval(() => {
-    axios.post('http://50.255.24.101:2001/', {
-        SysName: 'NES', 
-        CallStack:'LFTM.SystemTelemetryManager.mAPI_GetAllNodeStats',
-        KeywordArgs: {}
-    }).then(function (response) {
-        // handle success
-        fetchHistory.push(response.data);
-        currentFetch = response.data;
-        let nodeList = '';
-        for (var n in currentFetch.Content) {
-            nodeList += '<li>' + n + '</li>';
-            if (currentFetch 
-                && currentFetch.Content 
-                && currentFetch.Content[n] 
-                && currentFetch.Content[n].RAMUsage) {
-                document.querySelector('span#ru-stats').innerText = currentFetch.Content[n].RAMPercent + '% | ' + currentFetch.Content[n].RAMUsage;
-                ramChart.data.datasets[0].data.push(currentFetch.Content[n].RAMPercent);
-                if (ramChart.data.datasets[0].data.length > 20) {
-                    ramChart.data.datasets[0].data.shift();
-                }
-                ramChart.update();
-            }
-        }
-        if (!!nodeList) {
-            document.querySelector('#node-list').innerHTML = nodeList;
-        }
-    })
-    .catch(function (error) {
-        clearInterval(fetchInt);
-        notify('The API server cannot be reached!', 'error');
+let fetchInt;
+let fetchRate = 250;
+const totalAv = function(arr) {
+    let total = 0;
+    arr.forEach(item => {
+        total += item;
     });
-}, 75);
+    return Number.parseFloat(total / arr.length).toFixed(2);
+};
+let activeNodes = [];
+
+var fetchData = (cmd) => {
+    if (!!window.localStorage.bgxToken) {
+        axios.post('http://50.255.24.101:2001/', {
+            Token: window.localStorage.bgxToken,
+            SysName: 'NES', 
+            CallStack:'LFTM.SystemTelemetryManager.GetAllNodeStats',
+            KeywordArgs: {}
+        }).then(function (response) {
+            // handle success
+            if (cmd === 'init' && response.data && response.data.Content !== "Invalid Token") {
+                toggleLoginModal();
+                fetchInt = setInterval(() => {
+                    fetchData();
+                }, fetchRate);
+            }
+            fetchHistory.push(response.data);
+            currentFetch = response.data;
+            if (response.data.Name === "Error") {
+                if (cmd !== 'init') {
+                    notify(response.data.Content, 'error');
+                }
+                clearInterval(fetchInt);
+                return;
+            }
+            let nodeList = '',
+                ramArr = [],
+                cpuArr = [],
+                ramAv = 0,
+                cpuAv = 0;
+            for (var n in currentFetch.Content) {
+                if (!activeNodes.includes(n)) {
+                    activeNodes.push(n);
+                    nodeList += '<li>' + n + '</li>';
+                }
+                // add ram 
+                if (currentFetch 
+                    && currentFetch.Content 
+                    && currentFetch.Content[n] 
+                    && currentFetch.Content[n].RAMUsage) {
+                    ramArr.push(currentFetch.Content[n].RAMPercent);
+                }
+                if (currentFetch 
+                    && currentFetch.Content 
+                    && currentFetch.Content[n] 
+                    && currentFetch.Content[n].CPUUsage) {
+                    cpuArr.push(...currentFetch.Content[n].CPUUsage);
+                }
+            }
+            // update chart and html with averaged ram data
+            ramChart.data.datasets[0].data.push(totalAv(ramArr));
+            if (ramChart.data.datasets[0].data.length > 20) {
+                ramChart.data.datasets[0].data.shift();
+            }
+            ramChart.update();
+            document.querySelector('span#ru-stats').innerText = totalAv(ramArr) + '%';
+            // update chart and html with averaged cpu data
+            cpuChart.data.datasets[0].data.push(totalAv(cpuArr));
+            if (cpuChart.data.datasets[0].data.length > 20) {
+                cpuChart.data.datasets[0].data.shift();
+            }
+            cpuChart.update();
+            document.querySelector('span#cu-stats').innerText = totalAv(cpuArr) + '%';
+            if (nodeList !== '') {
+                if (document.querySelector('#node-list').innerText === 'Loading...') {
+                    document.querySelector('#node-list').innerHTML = nodeList 
+                } else {
+                    document.querySelector('#node-list').innerHTML += nodeList;
+                }
+            }
+        })
+        .catch(function (error) {
+            notify('API connection error!', 'error');
+            console.log(error);
+        });
+    }
+}
 
 // notifications 
 function notify(message, status) {
@@ -175,6 +235,9 @@ function notify(message, status) {
         case 'success':
             t = '<h2 class="notify-success">Success!</h2>';
             break;
+        case 'info':
+            t = '<h2 class="notify-info">Info...</h2>';
+            break;
     }
     el.innerHTML = b + t + '<p>' + message + '</p>';
     el.classList.add('active');
@@ -189,7 +252,7 @@ function navigate(page) {
         pg.classList.remove('active');
     });
     document.querySelector('#' + page).classList.add('active');
-    if (page === 'Terminal') {
+    if (page === 'Console') {
         // terminal 
         var term = new Terminal();
         var fitAddon = new FitAddon.FitAddon();
@@ -200,4 +263,42 @@ function navigate(page) {
         window.fitAddon = fitAddon;
         setTimeout(() => { fitAddon.fit(); }, 250);
     }
+}
+
+function login() {
+    document.querySelector('#login-button').classList.add('is-loading');
+    axios.post('http://50.255.24.101:2001/Authenticate', {
+        Username: document.querySelector('#username').value, 
+        Password: document.querySelector('#password').value
+    }).then(response => {
+        if (response.data && response.data.Token) {
+            document.querySelector('#login-button').classList.remove('is-loading');
+            document.querySelector('#login-modal').classList.remove('is-active');
+            window.localStorage.setItem('bgxToken', response.data.Token);
+            if (fetchInt) {
+                clearInterval(fetchInt);
+            }
+            fetchInt = setInterval(() => {
+                fetchData();
+            }, fetchRate);
+            fetchData();
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+}
+
+function toggleLoginModal() {
+    var loginModal = document.querySelector('#login-modal');
+    if (!loginModal.classList.contains('is-active')) {
+        loginModal.classList.add('is-active');
+    } else {
+        loginModal.classList.remove('is-active');
+    }
+}
+
+// upon page load JS determines if a bgxToken exists
+if (window.localStorage.bgxToken) {
+    // if so an attempt to fetch data is made:
+    fetchData('init');
 }
