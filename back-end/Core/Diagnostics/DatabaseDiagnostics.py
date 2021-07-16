@@ -13,7 +13,6 @@ import os
 import socket
 import pymysql
 
-
 def IsPortOpen(Address,Port): # Checks If A Given Port Is Open #
 
     # Create Socket #
@@ -24,7 +23,7 @@ def IsPortOpen(Address,Port): # Checks If A Given Port Is Open #
         S.connect((Address, int(Port)))
         S.shutdown(2)
         return True
-    except Exception:
+    except:
         return False
 
 
@@ -54,7 +53,6 @@ def CanAccessDatabase(DatabaseConfig:dict, Logger): # Runs Some Diagnostics Abou
 
     # Diagnostic Message #
     Logger.Log('Starting Database Connection Diagnostic Tool', 1)
-
 
     # Seperate Host Port And Address #
     Address = Host.split(':')[0]
