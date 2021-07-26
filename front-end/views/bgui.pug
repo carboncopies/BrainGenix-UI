@@ -22,21 +22,21 @@ html
         main
             aside#sidebar 
                 ul 
-                    li(onclick='navigate("Dashboard");') 
+                    li
                         span Dashboard 
-                    li(onclick='navigate("Console");') 
+                    li
                         span Console 
-                    li 
+                    li.submenu
                         span Menu 1 
                         ul 
                             li 
-                                span Menu 1 Item 1
-                            li 
+                                span Test Page
+                            li.submenu
                                 span Submenu 1 
                                 ul 
                                     li 
                                         span Submenu 1 Item 1 
-                            li 
+                            li.submenu
                                 span Submenu 2 
                                 ul 
                                     li 
@@ -74,6 +74,12 @@ html
                 section 
                     h2 Docs 
                     p Add docs here...
+            div#Test-Page.pg 
+                div.prefade
+                div.postfade
+                section
+                    h2 Test Page
+                    p Test page content
     footer 
         div#login-modal.modal.is-active
             div.modal-background 

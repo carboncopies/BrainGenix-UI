@@ -370,6 +370,14 @@ ul#node-list {
     user-select: none;
 }
 
+ul {
+    position: relative;
+}
+
+li {
+    position: relative;
+}
+
 ul#node-list li {
     cursor: pointer;
     transition: 100ms;
@@ -396,4 +404,31 @@ ul#node-list::-webkit-scrollbar {
     border-radius: 4px;
     padding: 8px;
     background-color: black;
+}
+
+.submenu::after {
+    cursor: pointer;
+    content: "";
+    position: absolute;
+    right: 15px;
+    top: 14px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 3.5px 5px 3.5px;
+    border-color: transparent transparent #fff transparent;
+    transition: 100ms;
+    transform: rotate(180deg);
+}
+
+.submenu > ul {
+    display: none;
+}
+
+.submenu.open::after {
+    transform: rotate(0deg);
+}
+
+.submenu.open > ul {
+    display: block;
 }

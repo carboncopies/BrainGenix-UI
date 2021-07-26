@@ -274,17 +274,19 @@ function loadConsole() {
 }
 // router and navigation 
 function navigate(page) {
-    let pgs = document.querySelectorAll('.pg');
-    pgs.forEach(pg => {
-        pg.classList.remove('active');
-    });
-    document.querySelector('#' + page).classList.add('active');
-    window.location.hash = '#' + page.toLowerCase();
-    if (page === 'Console') {
-        loadConsole();
-    }
-    if (page === 'Dashboard') {
-        loadLogTerm();
+    if (!!document.querySelector('#' + page.replace(/ /gi, '-'))) {
+        let pgs = document.querySelectorAll('.pg');
+        pgs.forEach(pg => {
+            pg.classList.remove('active');
+        });
+        document.querySelector('#' + page.replace(/ /gi, '-')).classList.add('active');
+        window.location.hash = '#' + page.replace(/ /gi, '-').toLowerCase();
+        if (page === 'Console') {
+            loadConsole();
+        }
+        if (page === 'Dashboard') {
+            loadLogTerm();
+        }
     }
 }
 
@@ -330,3 +332,20 @@ if (window.localStorage.bgxToken) {
 if (window.location.pathname === '/' || window.location.hash === '#dashboard') {
     loadLogTerm();
 }
+
+// when li with class 'submenu' is clicked toggle class 'open'
+document.querySelectorAll('.submenu').forEach(li => {
+    li.addEventListener('click', (e) => {
+        e.currentTarget.classList.toggle('open');
+        e.cancelBubble = true;
+    });
+});
+
+// when li span is clicked cancel bubbling
+document.querySelectorAll('li:not(.submenu) > span').forEach(sp => {
+    sp.addEventListener('click', (e) => {
+        console.log(e.currentTarget.innerText);
+        navigate(e.currentTarget.innerText);
+        e.cancelBubble = true;
+    });
+});
