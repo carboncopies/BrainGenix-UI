@@ -6,13 +6,14 @@
 import secrets
 import time
 
-from requests.models import Response
+# from requests.models import Response
+
 
 '''
 Name: Auth
 Description: This subsystem is used to handle system authentication for the API Server.
 Date-Created: 2021-03-03
-''' 
+'''
 
 class AuthenticationManager(): # Handles Auth for API #
 
@@ -20,11 +21,11 @@ class AuthenticationManager(): # Handles Auth for API #
 
         # Store Logger #
         self.Logger = Logger
-        
+
         self.Logger.Log('Initializing mAPI Authentication Manager')
 
         # Store DB Creds #
-        pass # Skip this for now
+        # pass # Skip this for now
 
         # Create Token Dict #
         self.Tokens = {}
@@ -42,7 +43,7 @@ class AuthenticationManager(): # Handles Auth for API #
 
         # Check Token #
         try:
-            AssociatedUsername = self.Tokens[Token]['Username']
+            # AssociatedUsername = self.Tokens[Token]['Username']
             TokenExpireDate = self.Tokens[Token]['ExpireTime']
 
             # Check If Token Expired #
@@ -84,9 +85,9 @@ class AuthenticationManager(): # Handles Auth for API #
             }
 
         # Save Token #
-        pass
-        pass # FILL THIS IN LATER!!!!!
-        pass
+        # pass
+        # pass # FILL THIS IN LATER!!!!!
+        # pass
 
         # Add To Token Dict #
         self.Tokens.update({Token : Metadata})
