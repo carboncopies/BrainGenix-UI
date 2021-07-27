@@ -42,9 +42,9 @@ if __name__ == '__main__':
 
     # Launch UVICorn Instance #
     uvicorn.run(
-        "APIServer:API", 
-        host=SystemConfiguration['APIServerAddress'], 
-        port=SystemConfiguration['APIServerPort'], 
+        "APIServer:API",
+        host=SystemConfiguration['APIServerAddress'],
+        port=SystemConfiguration['APIServerPort'],
         log_level="info"
     )
 
