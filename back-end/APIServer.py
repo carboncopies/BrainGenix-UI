@@ -33,6 +33,8 @@ from Core.BackendAPIClient.SocketClient import SocketClient
 from Core.BackendAPIClient.Auth import AuthenticationManager
 
 
+# Load Config #
+SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 
 
 # Start Uvicorn #
@@ -56,10 +58,6 @@ if __name__ == '__main__':
 # Set Version Information
 Version = VersionNumber
 Branch = BranchVersion
-
-
-# Load Config #
-SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 
 
 # Initialize Logger #
