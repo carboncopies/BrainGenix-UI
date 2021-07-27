@@ -24,8 +24,6 @@ from Core.ThreadManager import ThreadManager
 
 from Core.Initialization.Instantiator import InstantiateLogger
 
-from Core.Internode.Zookeeper.LFTransitionManager import LFTM
-
 from Core.VersionData import VersionNumber
 from Core.VersionData import BranchVersion
 
