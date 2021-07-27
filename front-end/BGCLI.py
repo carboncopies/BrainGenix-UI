@@ -5,7 +5,7 @@
 import requests
 import readline # Needed for bash-style arrow key interface to input call; DO NOT DELETE THIS #
 
-from requests.sessions import Request
+# from requests.sessions import Request
 
 
 
@@ -70,7 +70,7 @@ class Client(): # Client For BrainGenix System #
             if CommandString.lower().startswith('scope '):
                 self.Scope = CommandString.split(' ')[1]
                 print(f'Setting Scope To {self.Scope}')
-            
+
             elif CommandString.lower() == 'exit':
                 print('Bye.')
                 exit(1)

@@ -12,7 +12,7 @@ Name: LogAutoDeletionSystem
 Description: The LogAutodeletionSystem automatically purges logs that are older than the defined retention period (see config.yaml).
 Date-Created: 2021-07-15
 '''
- 
+
 class LogAutoDeletionSystem(): # Create Class To Hold Log Auto Deletion System #
 
 
@@ -30,8 +30,8 @@ class LogAutoDeletionSystem(): # Create Class To Hold Log Auto Deletion System #
         # Create Thread Object #
         self.Logger.Log('Creating LADS Daemon Thread', 2)
         self.UpdateThread = threading.Thread(
-            target=self.DeleteLogThread, 
-            args=(), 
+            target=self.DeleteLogThread,
+            args=(),
             name='Log Auto Deletion System'
         )
         self.Logger.Log('Created LADS Daemon Thread', 1)
@@ -80,9 +80,9 @@ class LogAutoDeletionSystem(): # Create Class To Hold Log Auto Deletion System #
             # Calculate Old Date (Current Date Minus KeepSeconds) #
             DeleteDateRaw = datetime.datetime.now() - datetime.timedelta(seconds=self.SecondsToKeepLogs)
             DeleteDate = DeleteDateRaw.strftime('%Y-%m-%d %H:%M:%S')
-
+            DeleteDate = DeleteDate
             # Delete Old Logs #
-            DeleteStatement= ("DELETE FROM log WHERE LogDatetime < %s" % DeleteDate)
+            # DeleteStatement= ("DELETE FROM log WHERE LogDatetime < %s" % DeleteDate)
             #self.LoggerCursor.execute(DeleteStatement)
 
 
@@ -92,7 +92,7 @@ class LogAutoDeletionSystem(): # Create Class To Hold Log Auto Deletion System #
 
         # Shutdown Thread #
         self.Logger.Log('Shutting Down LADS Daemon', 4)
-        
+
         self.Logger.Log('Committing Outstanding Cursor Queries', 2)
         self.DatabaseConnection.commit()
         self.Logger.Log('Committed Oustanding Queries', 1)
