@@ -70,7 +70,7 @@ class Client(): # Client For BrainGenix System #
             if CommandString.lower().startswith('scope '):
                 self.Scope = CommandString.split(' ')[1]
                 print(f'Setting Scope To {self.Scope}')
-            
+
             elif CommandString.lower() == 'exit':
                 print('Bye.')
                 exit(1)

@@ -49,7 +49,7 @@ class AuthenticationManager(): # Handles Auth for API #
             # Check If Token Expired #
             if time.time() > TokenExpireDate:
                 Response = 'Expired Token'
-            
+
             # Valid Token #
             else:
                 Response = 'Valid Token'
@@ -69,7 +69,7 @@ class AuthenticationManager(): # Handles Auth for API #
         self.Logger.Log(f'Token Expires: {TokenExpires}')
         self.Logger.Log(f'Token Persistent: {SaveToken}')
         self.Logger.Log(f'Token Length: {TokenLength}')
-        
+
         # Generate Random String #
         Token = secrets.token_urlsafe(TokenLength)
 
