@@ -165,13 +165,13 @@ async def Authentication(RequestJSON: Request):
 
         # Auth Fails #
         else:
-            
+
             # Set Fail Msg #
             Response = {'Error' : 'Authentication Failure'}
 
         # Return Response #
         return Response
-    
+
     except Exception as e:
         print(e)
 
