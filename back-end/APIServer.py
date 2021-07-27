@@ -41,7 +41,12 @@ SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 if __name__ == '__main__':
 
     # Launch UVICorn Instance #
-    uvicorn.run("APIServer:API", host=SystemConfiguration['APIServerAddress'], port=2001, log_level="info")
+    uvicorn.run(
+        "APIServer:API", 
+        host=SystemConfiguration['APIServerAddress'], 
+        port=SystemConfiguration['APIServerPort'], 
+        log_level="info"
+    )
 
     # Shutdown Server #
     os._exit(0)
