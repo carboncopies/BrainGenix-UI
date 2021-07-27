@@ -23,7 +23,7 @@ def IsPortOpen(Address,Port): # Checks If A Given Port Is Open #
         S.connect((Address, int(Port)))
         S.shutdown(2)
         return True
-    except:
+    except socket.error:
         return False
 
 
