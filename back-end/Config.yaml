@@ -53,3 +53,7 @@ LogLevelNames:
 ZKHost: 127.0.0.1
 ZKPort: 2181
 
+
+## API SERVER HTTP CONFIGURATION ##
+APIServerAddress: 0.0.0.0 # Set the IP Address Used By The HTTPS Side Of The API Server
+APIServerPort: 2001 # Set The Port Used By The HTTPS Side Of The API Server
