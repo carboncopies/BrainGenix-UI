@@ -250,28 +250,6 @@ function notify(message, status) {
 
 document.querySelector('div.close-notification').addEventListener('click', () => { notify(); });
 
-function loadLogTerm() {
-    var logTerm = new Terminal();
-    var fitAddonLog = new FitAddon.FitAddon();
-    logTerm.loadAddon(fitAddonLog);
-    logTerm.open(document.getElementById('log-term'));
-    logTerm.write('BrainGenix-UI $ ');
-    window.logTerm = logTerm;
-    window.fitAddonLog = fitAddonLog;
-    setTimeout(() => { fitAddonLog.fit(); }, 250);
-}
-
-function loadConsole() {
-    // terminal 
-    var term = new Terminal();
-    var fitAddon = new FitAddon.FitAddon();
-    term.loadAddon(fitAddon);
-    term.open(document.getElementById('terminal'));
-    term.write('BrainGenix-UI $ ');
-    window.term = term;
-    window.fitAddon = fitAddon;
-    setTimeout(() => { fitAddon.fit(); }, 250);
-}
 // router and navigation 
 function navigate(page) {
     if (!!document.querySelector('#' + page.replace(/ /gi, '-'))) {
@@ -281,13 +259,10 @@ function navigate(page) {
         });
         document.querySelector('#' + page.replace(/ /gi, '-')).classList.add('active');
         window.location.hash = '#' + page.replace(/ /gi, '-').toLowerCase();
-        if (page === 'Console') {
-            loadConsole();
-        }
-        if (page === 'Dashboard') {
-            loadLogTerm();
-        }
     }
+}
+if (window.location.pathname === '/') {
+    navigate('Dashboard');
 }
 
 function login() {
@@ -317,6 +292,7 @@ function toggleLoginModal() {
     var loginModal = document.querySelector('#login-modal');
     if (!loginModal.classList.contains('is-active')) {
         loginModal.classList.add('is-active');
+        document.querySelector('#username').focus();
     } else {
         loginModal.classList.remove('is-active');
     }
@@ -326,11 +302,6 @@ function toggleLoginModal() {
 if (window.localStorage.bgxToken) {
     // if so an attempt to fetch data is made:
     fetchData('init');
-}
-
-// upon page load if route is home (dashboard) load logTerm
-if (window.location.pathname === '/' || window.location.hash === '#dashboard') {
-    loadLogTerm();
 }
 
 // when li with class 'submenu' is clicked toggle class 'open'
@@ -344,8 +315,78 @@ document.querySelectorAll('.submenu').forEach(li => {
 // when li span is clicked cancel bubbling
 document.querySelectorAll('li:not(.submenu) > span').forEach(sp => {
     sp.addEventListener('click', (e) => {
-        console.log(e.currentTarget.innerText);
         navigate(e.currentTarget.innerText);
         e.cancelBubble = true;
     });
+});
+
+let terminalPrintHistory = [];
+function terminalPrint(message, type, noHistory) {
+    // types: 'log', 'error', 'success', 'info', 'warn'
+    if (!type) {
+        type = 'log';
+    }
+    let el = document.querySelector('#terminal-logs');
+    let msg = document.createElement('pre');
+    msg.classList.add(type);
+    msg.innerHTML = message;
+    el.append(msg);
+    if (!noHistory) {
+        terminalPrintHistory.push({
+            message: message,
+            type: type,
+            time: new Date().getTime()
+        });
+    }
+}
+
+// when you press enter and #terminal-input is focused execute function
+document.querySelector('#terminal-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        var terminalInput = document.querySelector('#terminal-input').value;
+        document.querySelector('#terminal-input').value = '';
+        if (terminalInput === 'help' || terminalInput === '?' || terminalInput === 'h') {
+            terminalPrint(`BrainGenix UI $ > Help is here! Try out some of the commands below:
+help, h, ?            | brings up this message...
+clear                 | clears the terminal screen (logs can be restored)
+quit, q               | clears terminal logs and navigates to the Dashboard
+restore logs, r -a    | brings back all recent logs`, 'log');
+            return;
+        }
+        if (terminalInput === 'quit' || terminalInput === 'q') {
+            terminalPrint('BrainGenix UI $ > Bye!', 'log');
+            setTimeout(function() {
+                document.querySelector('#terminal-logs').innerHTML = '';
+                setTimeout(function() {
+                    navigate('Dashboard');
+                }, 1000  );
+            }, 1000);
+            return;
+        }
+        if (terminalInput === 'restore logs' || terminalInput === 'r -a') {
+            if (document.querySelector('#terminal-logs').innerHTML == '' && terminalPrintHistory.length > 0) {
+                terminalPrintHistory.forEach(log => {
+                    terminalPrint(log.message, log.type, true);
+                });
+            } else if (document.querySelector('#terminal-logs').innerHTML == '' && terminalPrintHistory.length === 0) {
+                terminalPrint('BrainGenix UI $ > Oops, there are no logs to display!', 'warn');
+            } else if (document.querySelector('#terminal-logs').innerHTML !== '') {
+                terminalPrint('BrainGenix UI $ > You already have logs! Try \'clear\' to clear the logs, or \'quit\' to return to the Dashboard.', 'warn');
+            }
+            return;
+        }
+        if (terminalInput === 'clear') {
+            document.querySelector('#terminal-logs').innerHTML = '';
+            return;
+        }
+        if (terminalInput === 'login') {
+            toggleLoginModal();
+            return;
+        }
+        if (terminalInput === 'about') {
+            terminalPrint('BrainGenix UI $ > This platform was built to access and work with other BrainGenix offerings. It is built using modern JavaScript, Node.js, Pug, Axios, and many other cool JS libraries.', 'log');
+            return;
+        }
+        terminalPrint(`BrainGenix UI $ > Command \'${terminalInput}\' not recognized...`, 'error');
+    }
 });

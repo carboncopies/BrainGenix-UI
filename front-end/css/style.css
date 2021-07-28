@@ -71,7 +71,7 @@
 
 /* GENERAL STYLING */
 ::selection {
-    background-color: rgba(255, 255, 255, .1);
+    background-color: rgba(255, 255, 255, .2);
 }
 
 html {
@@ -241,7 +241,7 @@ div.prefade {
     overflow-y: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
-    padding: 15px 0 35px;
+    padding: 17px 0 17px;
 }
 
 div#nodes-cpu-ram {
@@ -314,6 +314,85 @@ span#ru-stats, span#cu-stats, span#total-nodes {
     border-radius: 4px;
     padding: 8px;
     background-color: black;
+    position: relative;
+    color: white;
+}
+
+#terminal-input {
+    width: 97%;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 15px;
+    height: 32px;
+    padding: 0 21px;
+    background-color: transparent;
+    border: none;
+    border-top: .5px solid var(--border-primary);
+    color: white;
+    font-family: var(--font-family);
+}
+
+div.indicator {
+    position: absolute;
+    text-align: center;
+    bottom: 19px;
+    left: 11px;
+    width: 24px;
+    height: 24px;
+    font-family: var(--font-family);
+    color: white;
+    display: block;
+}
+
+#terminal-input:focus-visible {
+    outline: none;
+}
+
+#terminal-input::-webkit-input-placeholder {
+    color: var(--text-color-secondary);
+}
+
+#terminal-logs {
+    width: 100%;
+    height: auto;
+    max-height: calc(100% - 45px);
+    display: block;
+    overflow-y: scroll;
+    padding: 15px;
+}
+
+#terminal-logs::-webkit-scrollbar {
+    display: none;
+}
+
+#terminal-logs pre {
+    background-color: transparent;
+    color: white;
+    padding: 5px 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+#terminal-logs pre.log {
+    color: white;
+}
+
+#terminal-logs pre.success {
+    color: var(--brand-color-primary);
+}
+
+#terminal-logs pre.error {
+    color: var(--error-primary);
+}
+
+#terminal-logs pre.warn {
+    color: var(--invalid);
 }
 
 aside#sidebar {
@@ -335,6 +414,7 @@ aside#sidebar ul {
     border-radius: 5px;
     border: .5px solid var(--border-primary); 
     background-color: rgba(255, 255, 255, .06);
+    transition: 100ms;
 }
 
 aside#sidebar li {
@@ -397,7 +477,7 @@ ul#node-list::-webkit-scrollbar {
 
 #log-term {
     height: 0;
-    min-height: 250px;
+    min-height: 245px;
     overflow: hidden;
     margin-top: 5px;
     border: .5px solid var(--border-primary);
@@ -421,14 +501,19 @@ ul#node-list::-webkit-scrollbar {
     transform: rotate(180deg);
 }
 
-.submenu > ul {
-    display: none;
+aside#sidebar .submenu > ul {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: 100ms;
 }
 
-.submenu.open::after {
+aside#sidebar .submenu.open::after {
     transform: rotate(0deg);
 }
 
-.submenu.open > ul {
-    display: block;
+aside#sidebar .submenu.open > ul {
+    padding: 5px;
+    max-height: 100%;
+    transition: 100ms;
 }

@@ -7,11 +7,8 @@ html
         script(src='/js/iconify.min.js')
         link(href='img/puzzle-brain.svg' type='image/svg+xml' rel='icon')
         link(href='css/bulma.css' rel='stylesheet')
-        link(href='xterm.css' rel='stylesheet')
         link(href='css/style.css' rel='stylesheet')
         link(href='https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap' rel='stylesheet')
-        script(src='xterm.js')
-        script(src='xterm-addon-fit.js')
     body 
         header 
             div#header-logo 
@@ -45,7 +42,9 @@ html
                 div.prefade
                 div.postfade
                 section
-                    h2 Dashboard 
+                    h2 
+                        span(class='iconify' data-icon='clarity:line-chart-solid')
+                        span &nbsp;Dashboard 
                     div.columns#nodes-cpu-ram
                         div.stat-card#nodes.column 
                             h3 Nodes 
@@ -66,8 +65,10 @@ html
                 div.prefade
                 div.postfade
                 section
-                    h2 Console 
                     div#terminal
+                        div#terminal-logs
+                        input(type='text' id='terminal-input' autofocus='' spellcheck='false')
+                        div.indicator >
             div#Docs.pg
                 div.prefade
                 div.postfade
@@ -81,7 +82,7 @@ html
                     h2 Test Page
                     p Test page content
     footer 
-        div#login-modal.modal.is-active
+        div#login-modal.modal
             div.modal-background 
             div.modal-content 
                 div 
