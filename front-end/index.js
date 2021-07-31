@@ -3,6 +3,7 @@ const pug = require('pug')
 const path = require('path')
 const app = express()
 const port = 3000
+require('dotenv').config()
 
 app.set('view engine', 'pug')
 
@@ -18,9 +19,11 @@ app.use('/css', express.static('css'));
 app.use('/img', express.static('img'));
 
 app.get('/', (req, res) => {
-  res.render('bgui');
+    res.render('bgui', {
+        apiRoute: process.env.API_ROUTE
+    });
 })
 
 app.listen(port, () => {
-  console.log(`BrainGenix UI front-end server is listening at http://localhost:${port}`)
+    console.log(`BrainGenix UI front-end server is listening at http://localhost:${port}`)
 })

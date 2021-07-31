@@ -82,7 +82,7 @@ html
                     h2 Test Page
                     p Test page content
     footer 
-        div#login-modal.modal
+        div#login-modal.modal.is-active
             div.modal-background 
             div.modal-content 
                 div 
@@ -98,4 +98,6 @@ html
                 span.iconify(data-icon='ion-close-circle-outline') 
             h2 Error 
             p API Server is not reachable.
+        script. 
+            let apiRoute = '#{apiRoute}';
         script(src='/js/scripts.js')

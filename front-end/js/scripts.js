@@ -1,7 +1,6 @@
 // charts
 var ramChart = new Chart(
-    document.querySelector('div#ram-usage canvas.stat').getContext('2d'),
-    {
+    document.querySelector('div#ram-usage canvas.stat').getContext('2d'), {
         type: 'line',
         data: {
             labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -63,8 +62,7 @@ var ramChart = new Chart(
 );
 
 var cpuChart = new Chart(
-    document.querySelector('div#cpu canvas.stat').getContext('2d'),
-    {
+    document.querySelector('div#cpu canvas.stat').getContext('2d'), {
         type: 'line',
         data: {
             labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -141,83 +139,83 @@ let activeNodes = [];
 
 var fetchData = (cmd) => {
     if (!!window.localStorage.bgxToken) {
-        axios.post('http://50.255.24.101:2001/', {
-            Token: window.localStorage.bgxToken,
-            SysName: 'NES', 
-            CallStack:'LFTM.SystemTelemetryManager.GetAllNodeStats',
-            KeywordArgs: {}
-        }).then(function (response) {
-            // handle success
-            if (cmd === 'init' && response.data && response.data.Content !== "Expired Token") {
-                toggleLoginModal();
-                fetchInt = setInterval(() => {
-                    fetchData();
-                }, fetchRate);
-            }
-            fetchHistory.push(response.data);
-            currentFetch = response.data;
-            if (response.data.Name === "Error" && response.data.Content !== "Expired Token") {
-                if (cmd !== 'init') {
-                    notify(response.data.Content, 'error');
+        axios.post(apiRoute, {
+                Token: window.localStorage.bgxToken,
+                SysName: 'NES',
+                CallStack: 'LFTM.SystemTelemetryManager.GetAllNodeStats',
+                KeywordArgs: {}
+            }).then(function(response) {
+                // handle success
+                if (cmd === 'init' && response.data && response.data.Content !== "Expired Token") {
+                    toggleLoginModal();
+                    fetchInt = setInterval(() => {
+                        fetchData();
+                    }, fetchRate);
                 }
-                clearInterval(fetchInt);
-                return;
-            }
-            if (response.data.Name === "Error" && response.data.Content === "Expired Token") {
-                toggleLoginModal();
-                clearInterval(fetchInt);
-            }
-            let nodeList = '',
-                ramArr = [],
-                cpuArr = [],
-                ramAv = 0,
-                cpuAv = 0;
-            for (var n in currentFetch.Content) {
-                if (!activeNodes.includes(n) && !Number(n)) {
-                    activeNodes.push(n);
-                    nodeList += '<li>' + n + '</li>';
+                fetchHistory.push(response.data);
+                currentFetch = response.data;
+                if (response.data.Name === "Error" && response.data.Content !== "Expired Token") {
+                    if (cmd !== 'init') {
+                        notify(response.data.Content, 'error');
+                    }
+                    clearInterval(fetchInt);
+                    return;
                 }
-                // add ram 
-                if (currentFetch 
-                    && currentFetch.Content 
-                    && currentFetch.Content[n] 
-                    && currentFetch.Content[n].RAMUsage) {
-                    ramArr.push(currentFetch.Content[n].RAMPercent);
+                if (response.data.Name === "Error" && response.data.Content === "Expired Token") {
+                    toggleLoginModal();
+                    clearInterval(fetchInt);
                 }
-                if (currentFetch 
-                    && currentFetch.Content 
-                    && currentFetch.Content[n] 
-                    && currentFetch.Content[n].CPUUsage) {
-                    cpuArr.push(...currentFetch.Content[n].CPUUsage);
+                let nodeList = '',
+                    ramArr = [],
+                    cpuArr = [],
+                    ramAv = 0,
+                    cpuAv = 0;
+                for (var n in currentFetch.Content) {
+                    if (!activeNodes.includes(n) && !Number(n)) {
+                        activeNodes.push(n);
+                        nodeList += '<li>' + n + '</li>';
+                    }
+                    // add ram 
+                    if (currentFetch &&
+                        currentFetch.Content &&
+                        currentFetch.Content[n] &&
+                        currentFetch.Content[n].RAMUsage) {
+                        ramArr.push(currentFetch.Content[n].RAMPercent);
+                    }
+                    if (currentFetch &&
+                        currentFetch.Content &&
+                        currentFetch.Content[n] &&
+                        currentFetch.Content[n].CPUUsage) {
+                        cpuArr.push(...currentFetch.Content[n].CPUUsage);
+                    }
                 }
-            }
-            // update chart and html with averaged ram data
-            ramChart.data.datasets[0].data.push(totalAv(ramArr));
-            if (ramChart.data.datasets[0].data.length > 20) {
-                ramChart.data.datasets[0].data.shift();
-            }
-            ramChart.update();
-            document.querySelector('span#ru-stats').innerText = totalAv(ramArr) + '%';
-            // update chart and html with averaged cpu data
-            cpuChart.data.datasets[0].data.push(totalAv(cpuArr));
-            if (cpuChart.data.datasets[0].data.length > 20) {
-                cpuChart.data.datasets[0].data.shift();
-            }
-            cpuChart.update();
-            document.querySelector('span#cu-stats').innerText = totalAv(cpuArr) + '%';
-            if (nodeList !== '') {
-                if (document.querySelector('#node-list').innerText === 'Loading...') {
-                    document.querySelector('#node-list').innerHTML = nodeList 
-                } else {
-                    document.querySelector('#node-list').innerHTML += nodeList;
+                // update chart and html with averaged ram data
+                ramChart.data.datasets[0].data.push(totalAv(ramArr));
+                if (ramChart.data.datasets[0].data.length > 20) {
+                    ramChart.data.datasets[0].data.shift();
                 }
-            }
-            document.querySelector('#total-nodes').innerText = activeNodes.length;
-        })
-        .catch(function (error) {
-            notify('API connection error!', 'error');
-            console.log(error);
-        });
+                ramChart.update();
+                document.querySelector('span#ru-stats').innerText = totalAv(ramArr) + '%';
+                // update chart and html with averaged cpu data
+                cpuChart.data.datasets[0].data.push(totalAv(cpuArr));
+                if (cpuChart.data.datasets[0].data.length > 20) {
+                    cpuChart.data.datasets[0].data.shift();
+                }
+                cpuChart.update();
+                document.querySelector('span#cu-stats').innerText = totalAv(cpuArr) + '%';
+                if (nodeList !== '') {
+                    if (document.querySelector('#node-list').innerText === 'Loading...') {
+                        document.querySelector('#node-list').innerHTML = nodeList
+                    } else {
+                        document.querySelector('#node-list').innerHTML += nodeList;
+                    }
+                }
+                document.querySelector('#total-nodes').innerText = activeNodes.length;
+            })
+            .catch(function(error) {
+                notify('API connection error!', 'error');
+                console.log(error);
+            });
     }
 }
 
@@ -227,10 +225,10 @@ function notify(message, status) {
         t = '<h2>Error</h2>',
         b = '<div class="close-notification" onclick="notify();"><span class="iconify" data-icon="ion-close-circle-outline"></span></div>';
     if (!message || message === 'quit') {
-        el.classList.remove('active'); 
+        el.classList.remove('active');
         return;
     }
-    switch(status) {
+    switch (status) {
         case 'log':
             t = '<h2 class="notify-log">Log</h2>';
             break;
@@ -267,8 +265,8 @@ if (window.location.pathname === '/') {
 
 function login() {
     document.querySelector('#login-button').classList.add('is-loading');
-    axios.post('http://50.255.24.101:2001/Authenticate', {
-        Username: document.querySelector('#username').value, 
+    axios.post(apiRoute + 'Authenticate', {
+        Username: document.querySelector('#username').value,
         Password: document.querySelector('#password').value
     }).then(response => {
         if (response.data && response.data.Token) {
@@ -321,6 +319,7 @@ document.querySelectorAll('li:not(.submenu) > span').forEach(sp => {
 });
 
 let terminalPrintHistory = [];
+
 function terminalPrint(message, type, noHistory) {
     // types: 'log', 'error', 'success', 'info', 'warn'
     if (!type) {
@@ -359,7 +358,7 @@ restore logs, r -a    | brings back all recent logs`, 'log');
                 document.querySelector('#terminal-logs').innerHTML = '';
                 setTimeout(function() {
                     navigate('Dashboard');
-                }, 1000  );
+                }, 1000);
             }, 1000);
             return;
         }
@@ -390,3 +389,23 @@ restore logs, r -a    | brings back all recent logs`, 'log');
         terminalPrint(`BrainGenix UI $ > Command \'${terminalInput}\' not recognized...`, 'error');
     }
 });
+
+function terminalFetch(cs) {
+    if (!cs || cs === 'log') {
+        cs = 'LFTM.Logger.CLAS.ReadLog';
+    }
+    // fire axios post request along with the token
+    axios.post(apiRoute, {
+        Token: window.localStorage.bgxToken,
+        SysName: 'NES',
+        CallStack: cs,
+        KeywordArgs: {
+            Lines: 50
+        }
+    }).then(response => {
+        // if successful, append the response to the #terminal-logs element
+        console.log(response);
+    }).catch(error => {
+        console.log(error);
+    });
+}
