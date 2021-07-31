@@ -1,9 +1,11 @@
 /* COLOR PALETTE: https://colorhunt.co/palette/293554 */
-/** 
- * BRAINGENIX UI STYLESHEET
-*/
+
+
+/* BRAINGENIX UI STYLESHEET */
+
 
 /* CSS VARIABLES */
+
 :root {
     --bg-color-primary: #3b3844;
     --bg-color-secondary: #161518;
@@ -19,7 +21,9 @@
     --invalid: #c2c36f;
 }
 
+
 /* BULMA OVERRIDES */
+
 .input {
     box-shadow: inset 0 0.0625em 0.125em rgb(10 10 10 / 5%);
     max-width: 100%;
@@ -29,7 +33,7 @@
     margin: 5px 0;
 }
 
-.input::placeholder, 
+.input::placeholder,
 .textarea::placeholder {
     font-style: italic;
     color: white;
@@ -49,7 +53,8 @@
     margin-top: 12px;
 }
 
-.modal-content, .modal-card {
+.modal-content,
+.modal-card {
     overflow: hidden;
     max-width: 250px;
     text-align: center;
@@ -59,7 +64,18 @@
     padding: 20px 15px;
 }
 
-.input:focus, .textarea:focus, .select select:focus, .is-focused.input, .is-focused.textarea, .select select.is-focused, .input:active, .textarea:active, .select select:active, .is-active.input, .is-active.textarea, .select select.is-active {
+.input:focus,
+.textarea:focus,
+.select select:focus,
+.is-focused.input,
+.is-focused.textarea,
+.select select.is-focused,
+.input:active,
+.textarea:active,
+.select select:active,
+.is-active.input,
+.is-active.textarea,
+.select select.is-active {
     border-color: var(--brand-color-primary);
     box-shadow: 0 0 0 0.125em rgb(53 220 50 / 27%);
 }
@@ -69,9 +85,11 @@
     margin-bottom: 15px;
 }
 
+
 /* GENERAL STYLING */
+
 ::selection {
-    background-color: rgba(255, 255, 255, .1);
+    background-color: rgba(255, 255, 255, .2);
 }
 
 html {
@@ -85,15 +103,21 @@ body {
     overflow-y: hidden;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     color: var(--brand-color-primary);
 }
 
-h4, h5, h6 {
+h4,
+h5,
+h6 {
     color: var(--brand-color-secondary);
 }
 
+
 /* HEADER */
+
 header {
     background-color: var(--bg-color-secondary);
     width: 100%;
@@ -141,7 +165,7 @@ header ul li {
     line-height: 42px;
     height: 42px;
     top: 0;
-    left: 0; 
+    left: 0;
 }
 
 header ul li:hover {
@@ -177,7 +201,9 @@ div.social-links a:hover {
     transition: 200ms;
 }
 
+
 /* CONTENT */
+
 main {
     display: block;
     padding: 15px;
@@ -199,7 +225,7 @@ main {
     right: 15px;
     margin: auto;
     transform: scale(.8) rotateX(90deg);
-    box-sizing: border-box; 
+    box-sizing: border-box;
     padding: 0 15px;
     overflow-y: hidden;
 }
@@ -239,9 +265,11 @@ div.prefade {
 .pg section {
     height: 100%;
     overflow-y: scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    padding: 15px 0 35px;
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    padding: 17px 0 17px;
 }
 
 div#nodes-cpu-ram {
@@ -294,11 +322,14 @@ div.close-notification:hover {
     color: var(--error-primary);
 }
 
-span#ru-stats, span#cu-stats, span#total-nodes {
+span#ru-stats,
+span#cu-stats,
+span#total-nodes {
     color: var(--text-color-primary);
 }
 
-#ram-usage canvas.stat, #cpu canvas.stat {
+#ram-usage canvas.stat,
+#cpu canvas.stat {
     margin-top: 35px;
 }
 
@@ -314,6 +345,85 @@ span#ru-stats, span#cu-stats, span#total-nodes {
     border-radius: 4px;
     padding: 8px;
     background-color: black;
+    position: relative;
+    color: white;
+}
+
+#terminal-input {
+    width: 97%;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 15px;
+    height: 32px;
+    padding: 0 21px;
+    background-color: transparent;
+    border: none;
+    border-top: .5px solid var(--border-primary);
+    color: white;
+    font-family: var(--font-family);
+}
+
+div.indicator {
+    position: absolute;
+    text-align: center;
+    bottom: 19px;
+    left: 11px;
+    width: 24px;
+    height: 24px;
+    font-family: var(--font-family);
+    color: white;
+    display: block;
+}
+
+#terminal-input:focus-visible {
+    outline: none;
+}
+
+#terminal-input::-webkit-input-placeholder {
+    color: var(--text-color-secondary);
+}
+
+#terminal-logs {
+    width: 100%;
+    height: auto;
+    max-height: calc(100% - 45px);
+    display: block;
+    overflow-y: scroll;
+    padding: 15px;
+}
+
+#terminal-logs::-webkit-scrollbar {
+    display: none;
+}
+
+#terminal-logs pre {
+    background-color: transparent;
+    color: white;
+    padding: 5px 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+#terminal-logs pre.log {
+    color: white;
+}
+
+#terminal-logs pre.success {
+    color: var(--brand-color-primary);
+}
+
+#terminal-logs pre.error {
+    color: var(--error-primary);
+}
+
+#terminal-logs pre.warn {
+    color: var(--invalid);
 }
 
 aside#sidebar {
@@ -325,7 +435,7 @@ aside#sidebar {
     border: .5px solid var(--border-primary);
     border-radius: 7px;
     left: 15px;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     padding: 15px;
     overflow-y: hidden;
 }
@@ -333,8 +443,9 @@ aside#sidebar {
 aside#sidebar ul {
     padding: 5px;
     border-radius: 5px;
-    border: .5px solid var(--border-primary); 
+    border: .5px solid var(--border-primary);
     background-color: rgba(255, 255, 255, .06);
+    transition: 100ms;
 }
 
 aside#sidebar li {
@@ -354,6 +465,86 @@ aside#sidebar li span:hover {
     transition: 100ms;
 }
 
-aside#sidebar li > ul {
+aside#sidebar li>ul {
     margin-top: 9px;
+}
+
+ul#node-list {
+    background-color: black;
+    width: 100%;
+    border-radius: 4px;
+    border: .5px solid var(--border-primary);
+    height: calc(100% - 29px);
+    margin-top: 5px;
+    overflow-y: scroll;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+ul {
+    position: relative;
+}
+
+li {
+    position: relative;
+}
+
+ul#node-list li {
+    cursor: pointer;
+    transition: 100ms;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, .05);
+}
+
+ul#node-list li:hover {
+    background-color: rgba(255, 255, 255, .1);
+    color: var(--brand-color-secondary);
+    transition: 100ms;
+}
+
+ul#node-list::-webkit-scrollbar {
+    display: none;
+}
+
+#log-term {
+    height: 0;
+    min-height: 245px;
+    overflow: hidden;
+    margin-top: 5px;
+    border: .5px solid var(--border-primary);
+    border-radius: 4px;
+    padding: 8px;
+    background-color: black;
+}
+
+.submenu::after {
+    cursor: pointer;
+    content: "";
+    position: absolute;
+    right: 15px;
+    top: 14px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 3.5px 5px 3.5px;
+    border-color: transparent transparent #fff transparent;
+    transition: 100ms;
+    transform: rotate(180deg);
+}
+
+aside#sidebar .submenu>ul {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: 100ms;
+}
+
+aside#sidebar .submenu.open::after {
+    transform: rotate(0deg);
+}
+
+aside#sidebar .submenu.open>ul {
+    padding: 5px;
+    max-height: 100%;
+    transition: 100ms;
 }

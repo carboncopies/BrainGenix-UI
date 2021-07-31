@@ -1,7 +1,6 @@
 // charts
 var ramChart = new Chart(
-    document.querySelector('div#ram-usage canvas.stat').getContext('2d'),
-    {
+    document.querySelector('div#ram-usage canvas.stat').getContext('2d'), {
         type: 'line',
         data: {
             labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -47,7 +46,7 @@ var ramChart = new Chart(
                 }
             },
             animation: {
-                duration: 10 // general animation time
+                duration: 250 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
@@ -63,8 +62,7 @@ var ramChart = new Chart(
 );
 
 var cpuChart = new Chart(
-    document.querySelector('div#cpu canvas.stat').getContext('2d'),
-    {
+    document.querySelector('div#cpu canvas.stat').getContext('2d'), {
         type: 'line',
         data: {
             labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -110,7 +108,7 @@ var cpuChart = new Chart(
                 }
             },
             animation: {
-                duration: 10 // general animation time
+                duration: 250 // general animation time
             },
             hover: {
                 animationDuration: 0 // duration of animations when hovering an item
@@ -129,7 +127,7 @@ var cpuChart = new Chart(
 const fetchHistory = [];
 let currentFetch = {};
 let fetchInt;
-let fetchRate = 250;
+let fetchRate = 1000;
 const totalAv = function(arr) {
     let total = 0;
     arr.forEach(item => {
@@ -141,78 +139,83 @@ let activeNodes = [];
 
 var fetchData = (cmd) => {
     if (!!window.localStorage.bgxToken) {
-        axios.post('http://50.255.24.101:2001/', {
-            Token: window.localStorage.bgxToken,
-            SysName: 'NES', 
-            CallStack:'LFTM.SystemTelemetryManager.GetAllNodeStats',
-            KeywordArgs: {}
-        }).then(function (response) {
-            // handle success
-            if (cmd === 'init' && response.data && response.data.Content !== "Invalid Token") {
-                toggleLoginModal();
-                fetchInt = setInterval(() => {
-                    fetchData();
-                }, fetchRate);
-            }
-            fetchHistory.push(response.data);
-            currentFetch = response.data;
-            if (response.data.Name === "Error") {
-                if (cmd !== 'init') {
-                    notify(response.data.Content, 'error');
+        axios.post(apiRoute, {
+                Token: window.localStorage.bgxToken,
+                SysName: 'NES',
+                CallStack: 'LFTM.SystemTelemetryManager.GetAllNodeStats',
+                KeywordArgs: {}
+            }).then(function(response) {
+                // handle success
+                if (cmd === 'init' && response.data && response.data.Content !== "Expired Token") {
+                    toggleLoginModal();
+                    fetchInt = setInterval(() => {
+                        fetchData();
+                    }, fetchRate);
                 }
-                clearInterval(fetchInt);
-                return;
-            }
-            let nodeList = '',
-                ramArr = [],
-                cpuArr = [],
-                ramAv = 0,
-                cpuAv = 0;
-            for (var n in currentFetch.Content) {
-                if (!activeNodes.includes(n)) {
-                    activeNodes.push(n);
-                    nodeList += '<li>' + n + '</li>';
+                fetchHistory.push(response.data);
+                currentFetch = response.data;
+                if (response.data.Name === "Error" && response.data.Content !== "Expired Token") {
+                    if (cmd !== 'init') {
+                        notify(response.data.Content, 'error');
+                    }
+                    clearInterval(fetchInt);
+                    return;
                 }
-                // add ram 
-                if (currentFetch 
-                    && currentFetch.Content 
-                    && currentFetch.Content[n] 
-                    && currentFetch.Content[n].RAMUsage) {
-                    ramArr.push(currentFetch.Content[n].RAMPercent);
+                if (response.data.Name === "Error" && response.data.Content === "Expired Token") {
+                    toggleLoginModal();
+                    clearInterval(fetchInt);
                 }
-                if (currentFetch 
-                    && currentFetch.Content 
-                    && currentFetch.Content[n] 
-                    && currentFetch.Content[n].CPUUsage) {
-                    cpuArr.push(...currentFetch.Content[n].CPUUsage);
+                let nodeList = '',
+                    ramArr = [],
+                    cpuArr = [],
+                    ramAv = 0,
+                    cpuAv = 0;
+                for (var n in currentFetch.Content) {
+                    if (!activeNodes.includes(n) && !Number(n)) {
+                        activeNodes.push(n);
+                        nodeList += '<li>' + n + '</li>';
+                    }
+                    // add ram 
+                    if (currentFetch &&
+                        currentFetch.Content &&
+                        currentFetch.Content[n] &&
+                        currentFetch.Content[n].RAMUsage) {
+                        ramArr.push(currentFetch.Content[n].RAMPercent);
+                    }
+                    if (currentFetch &&
+                        currentFetch.Content &&
+                        currentFetch.Content[n] &&
+                        currentFetch.Content[n].CPUUsage) {
+                        cpuArr.push(...currentFetch.Content[n].CPUUsage);
+                    }
                 }
-            }
-            // update chart and html with averaged ram data
-            ramChart.data.datasets[0].data.push(totalAv(ramArr));
-            if (ramChart.data.datasets[0].data.length > 20) {
-                ramChart.data.datasets[0].data.shift();
-            }
-            ramChart.update();
-            document.querySelector('span#ru-stats').innerText = totalAv(ramArr) + '%';
-            // update chart and html with averaged cpu data
-            cpuChart.data.datasets[0].data.push(totalAv(cpuArr));
-            if (cpuChart.data.datasets[0].data.length > 20) {
-                cpuChart.data.datasets[0].data.shift();
-            }
-            cpuChart.update();
-            document.querySelector('span#cu-stats').innerText = totalAv(cpuArr) + '%';
-            if (nodeList !== '') {
-                if (document.querySelector('#node-list').innerText === 'Loading...') {
-                    document.querySelector('#node-list').innerHTML = nodeList 
-                } else {
-                    document.querySelector('#node-list').innerHTML += nodeList;
+                // update chart and html with averaged ram data
+                ramChart.data.datasets[0].data.push(totalAv(ramArr));
+                if (ramChart.data.datasets[0].data.length > 20) {
+                    ramChart.data.datasets[0].data.shift();
                 }
-            }
-        })
-        .catch(function (error) {
-            notify('API connection error!', 'error');
-            console.log(error);
-        });
+                ramChart.update();
+                document.querySelector('span#ru-stats').innerText = totalAv(ramArr) + '%';
+                // update chart and html with averaged cpu data
+                cpuChart.data.datasets[0].data.push(totalAv(cpuArr));
+                if (cpuChart.data.datasets[0].data.length > 20) {
+                    cpuChart.data.datasets[0].data.shift();
+                }
+                cpuChart.update();
+                document.querySelector('span#cu-stats').innerText = totalAv(cpuArr) + '%';
+                if (nodeList !== '') {
+                    if (document.querySelector('#node-list').innerText === 'Loading...') {
+                        document.querySelector('#node-list').innerHTML = nodeList
+                    } else {
+                        document.querySelector('#node-list').innerHTML += nodeList;
+                    }
+                }
+                document.querySelector('#total-nodes').innerText = activeNodes.length;
+            })
+            .catch(function(error) {
+                notify('API connection error!', 'error');
+                console.log(error);
+            });
     }
 }
 
@@ -222,10 +225,10 @@ function notify(message, status) {
         t = '<h2>Error</h2>',
         b = '<div class="close-notification" onclick="notify();"><span class="iconify" data-icon="ion-close-circle-outline"></span></div>';
     if (!message || message === 'quit') {
-        el.classList.remove('active'); 
+        el.classList.remove('active');
         return;
     }
-    switch(status) {
+    switch (status) {
         case 'log':
             t = '<h2 class="notify-log">Log</h2>';
             break;
@@ -247,28 +250,23 @@ document.querySelector('div.close-notification').addEventListener('click', () =>
 
 // router and navigation 
 function navigate(page) {
-    let pgs = document.querySelectorAll('.pg');
-    pgs.forEach(pg => {
-        pg.classList.remove('active');
-    });
-    document.querySelector('#' + page).classList.add('active');
-    if (page === 'Console') {
-        // terminal 
-        var term = new Terminal();
-        var fitAddon = new FitAddon.FitAddon();
-        term.loadAddon(fitAddon);
-        term.open(document.getElementById('terminal'));
-        term.write('BrainGenix-UI $ ');
-        window.term = term;
-        window.fitAddon = fitAddon;
-        setTimeout(() => { fitAddon.fit(); }, 250);
+    if (!!document.querySelector('#' + page.replace(/ /gi, '-'))) {
+        let pgs = document.querySelectorAll('.pg');
+        pgs.forEach(pg => {
+            pg.classList.remove('active');
+        });
+        document.querySelector('#' + page.replace(/ /gi, '-')).classList.add('active');
+        window.location.hash = '#' + page.replace(/ /gi, '-').toLowerCase();
     }
+}
+if (window.location.pathname === '/') {
+    navigate('Dashboard');
 }
 
 function login() {
     document.querySelector('#login-button').classList.add('is-loading');
-    axios.post('http://50.255.24.101:2001/Authenticate', {
-        Username: document.querySelector('#username').value, 
+    axios.post(apiRoute + 'Authenticate', {
+        Username: document.querySelector('#username').value,
         Password: document.querySelector('#password').value
     }).then(response => {
         if (response.data && response.data.Token) {
@@ -292,6 +290,7 @@ function toggleLoginModal() {
     var loginModal = document.querySelector('#login-modal');
     if (!loginModal.classList.contains('is-active')) {
         loginModal.classList.add('is-active');
+        document.querySelector('#username').focus();
     } else {
         loginModal.classList.remove('is-active');
     }
@@ -301,4 +300,112 @@ function toggleLoginModal() {
 if (window.localStorage.bgxToken) {
     // if so an attempt to fetch data is made:
     fetchData('init');
+}
+
+// when li with class 'submenu' is clicked toggle class 'open'
+document.querySelectorAll('.submenu').forEach(li => {
+    li.addEventListener('click', (e) => {
+        e.currentTarget.classList.toggle('open');
+        e.cancelBubble = true;
+    });
+});
+
+// when li span is clicked cancel bubbling
+document.querySelectorAll('li:not(.submenu) > span').forEach(sp => {
+    sp.addEventListener('click', (e) => {
+        navigate(e.currentTarget.innerText);
+        e.cancelBubble = true;
+    });
+});
+
+let terminalPrintHistory = [];
+
+function terminalPrint(message, type, noHistory) {
+    // types: 'log', 'error', 'success', 'info', 'warn'
+    if (!type) {
+        type = 'log';
+    }
+    let el = document.querySelector('#terminal-logs');
+    let msg = document.createElement('pre');
+    msg.classList.add(type);
+    msg.innerHTML = message;
+    el.append(msg);
+    if (!noHistory) {
+        terminalPrintHistory.push({
+            message: message,
+            type: type,
+            time: new Date().getTime()
+        });
+    }
+}
+
+// when you press enter and #terminal-input is focused execute function
+document.querySelector('#terminal-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        var terminalInput = document.querySelector('#terminal-input').value;
+        document.querySelector('#terminal-input').value = '';
+        if (terminalInput === 'help' || terminalInput === '?' || terminalInput === 'h') {
+            terminalPrint(`BrainGenix UI $ > Help is here! Try out some of the commands below:
+help, h, ?            | brings up this message...
+clear                 | clears the terminal screen (logs can be restored)
+quit, q               | clears terminal logs and navigates to the Dashboard
+restore logs, r -a    | brings back all recent logs`, 'log');
+            return;
+        }
+        if (terminalInput === 'quit' || terminalInput === 'q') {
+            terminalPrint('BrainGenix UI $ > Bye!', 'log');
+            setTimeout(function() {
+                document.querySelector('#terminal-logs').innerHTML = '';
+                setTimeout(function() {
+                    navigate('Dashboard');
+                }, 1000);
+            }, 1000);
+            return;
+        }
+        if (terminalInput === 'restore logs' || terminalInput === 'r -a') {
+            if (document.querySelector('#terminal-logs').innerHTML == '' && terminalPrintHistory.length > 0) {
+                terminalPrintHistory.forEach(log => {
+                    terminalPrint(log.message, log.type, true);
+                });
+            } else if (document.querySelector('#terminal-logs').innerHTML == '' && terminalPrintHistory.length === 0) {
+                terminalPrint('BrainGenix UI $ > Oops, there are no logs to display!', 'warn');
+            } else if (document.querySelector('#terminal-logs').innerHTML !== '') {
+                terminalPrint('BrainGenix UI $ > You already have logs! Try \'clear\' to clear the logs, or \'quit\' to return to the Dashboard.', 'warn');
+            }
+            return;
+        }
+        if (terminalInput === 'clear') {
+            document.querySelector('#terminal-logs').innerHTML = '';
+            return;
+        }
+        if (terminalInput === 'login') {
+            toggleLoginModal();
+            return;
+        }
+        if (terminalInput === 'about') {
+            terminalPrint('BrainGenix UI $ > This platform was built to access and work with other BrainGenix offerings. It is built using modern JavaScript, Node.js, Pug, Axios, and many other cool JS libraries.', 'log');
+            return;
+        }
+        terminalPrint(`BrainGenix UI $ > Command \'${terminalInput}\' not recognized...`, 'error');
+    }
+});
+
+function terminalFetch(cs) {
+    let keywordArgs = {};
+    if (!cs || cs === 'log') {
+        cs = 'LFTM.Logger.CLAS.ReadLog';
+        keywordArgs.Lines = 50;
+    }
+    // fire axios post request along with the token
+    axios.post(apiRoute, {
+        Token: window.localStorage.bgxToken,
+        SysName: 'NES',
+        CallStack: cs,
+        KeywordArgs: keywordArgs
+    }).then(response => {
+        // if successful, append the response to the #terminal-logs element
+        console.log(response);
+    }).catch(error => {
+        console.log(error);
+    });
 }
