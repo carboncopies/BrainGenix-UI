@@ -391,17 +391,17 @@ restore logs, r -a    | brings back all recent logs`, 'log');
 });
 
 function terminalFetch(cs) {
+    let keywordArgs = {};
     if (!cs || cs === 'log') {
         cs = 'LFTM.Logger.CLAS.ReadLog';
+        keywordArgs.Lines = 50;
     }
     // fire axios post request along with the token
     axios.post(apiRoute, {
         Token: window.localStorage.bgxToken,
         SysName: 'NES',
         CallStack: cs,
-        KeywordArgs: {
-            Lines: 50
-        }
+        KeywordArgs: keywordArgs
     }).then(response => {
         // if successful, append the response to the #terminal-logs element
         console.log(response);
