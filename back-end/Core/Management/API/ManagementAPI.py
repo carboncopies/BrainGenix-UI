@@ -6,6 +6,7 @@ import socket
 import threading
 import queue
 import json
+import secrets
 import select
 
 import pymysql
@@ -445,7 +446,7 @@ class ManagementAPISocketServer(): # Creates A Class To Connect To The Managemen
             print("No matching user found in Database.")
 
         self.DatabaseConnection.close()
-
+    
     def addUser(self, SystemConfiguration:dict, userName:str, passwordHash:str, salt:str, firstName:str, lastName:str, notes:str, permissionLevel:int):
 
         # Get Database Config #
@@ -469,6 +470,25 @@ class ManagementAPISocketServer(): # Creates A Class To Connect To The Managemen
         cur.execute("INSERT INTO user (userName, passwordHash, salt, firstName, lastName, notes, permissionLevel) VALUES (%s,%s,%s,%s,%s,%s,%d)",(userName, passwordHash, salt, firstName, lastName, notes, permissionLevel))
 
         self.DatabaseConnection.close()
+
+
+    def mAPI_AddUser(self, ArgumentsDictionary): # Call AddUser Method #
+
+        # Get User Info #
+        UserName = ArgumentsDictionary['Username']
+        PasswordHash = ArgumentsDictionary['Password']
+        FirstName = ArgumentsDictionary['FirstName']
+        LastName = ArgumentsDictionary['LastName']
+        Notes = ArgumentsDictionary['Notes']
+        PermissionLevel = ArgumentsDictionary['PermissionLevel']
+
+        # Create Salt Token #
+        Salt = secrets.token_urlsafe(65535)
+
+
+        # Call Command #
+        self.addUser(self.SystemConfiguration, UserName, PasswordHash, Salt, FirstName, LastName, Notes, PermissionLevel)
+
 
     def mAPI_TestAPI(self, ArgumentsDictionary): # Returns A Test String #
 
