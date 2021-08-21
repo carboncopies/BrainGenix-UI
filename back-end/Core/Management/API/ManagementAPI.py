@@ -446,7 +446,7 @@ class ManagementAPISocketServer(): # Creates A Class To Connect To The Managemen
             print("No matching user found in Database.")
 
         self.DatabaseConnection.close()
-    
+
     def addUser(self, SystemConfiguration:dict, userName:str, passwordHash:str, salt:str, firstName:str, lastName:str, notes:str, permissionLevel:int):
 
         # Get Database Config #
