@@ -169,7 +169,7 @@ async def mAPI_CreateUser(RequestJSON: APIArgs): # Create User Statemenet #
 
 # Authentication #
 @API.post('/Authenticate')
-async def Authentication(RequestJSON: Request):
+async def Authentication(RequestJSON: Request): 
 
     try:
 
@@ -184,7 +184,7 @@ async def Authentication(RequestJSON: Request):
         Password = CommandScope['Password']
 
         # Check Uname, Passwd #
-        if API.WriteAuthentication(Username,Password): ## This needs to be replaced with real auth, not hardcoded ##
+        if API.WriteAuthentication(Username,Password): 
 
             Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
 
