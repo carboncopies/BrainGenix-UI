@@ -148,8 +148,12 @@ async def root(RequestJSON: Request):
 
 # Add a new user #
 @API.get('/AddUser')
-async def mAPI_CreateUser(RequestJSON: APIArgs): # Create User Statemenet #
+async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
 
+        # Decode Incoming JSON #
+        RequestBytes = await RequestJSON.body()
+        APIArgs = json.loads(RequestBytes.decode())
+        
         # Get User Info #
         UserName = APIArgs['Username']
         Password = APIArgs['Password']
@@ -166,11 +170,13 @@ async def mAPI_CreateUser(RequestJSON: APIArgs): # Create User Statemenet #
         
         # Acknowledge Add User Success #
         Response = {'Acknowledgement' : 'Add User Success'}
+        
+        return Response
 
 # Authentication #
 @API.post('/Authenticate')
-async def Authentication(RequestJSON: Request): 
-
+async def Authentication(RequestJSON: Request):
+    
     try:
 
         # Decode Incoming JSON #
@@ -184,8 +190,8 @@ async def Authentication(RequestJSON: Request):
         Password = CommandScope['Password']
 
         # Check Uname, Passwd #
-        if API.WriteAuthentication(Username,Password): 
-
+        if API.WriteAuthentication(Username,Password):
+            
             Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
 
         # Auth Fails #
@@ -200,7 +206,6 @@ async def Authentication(RequestJSON: Request):
     except Exception as e:
         print(e)
         
-# 
         
 # Define Test Requests #
 @API.get('/APIServerTest')
