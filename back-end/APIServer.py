@@ -12,6 +12,7 @@ Date-Created: 2021-03-03
 import json
 import uvicorn
 import os
+import secrets
 
 from fastapi import FastAPI
 from fastapi import Request
@@ -145,6 +146,27 @@ async def root(RequestJSON: Request):
     except Exception as e:
         print('Error: ' + e)
 
+# Add a new user #
+@API.get('/AddUser')
+async def mAPI_CreateUser(RequestJSON: APIArgs): # Create User Statemenet #
+
+        # Get User Info #
+        UserName = APIArgs['Username']
+        Password = APIArgs['Password']
+        FirstName = APIArgs['FirstName']
+        LastName = APIArgs['LastName']
+        Notes = APIArgs['Notes']
+        PermissionLevel = APIArgs['PermissionLevel']
+
+        # Create Salt Token #
+        Salt = secrets.token_urlsafe(65535)
+
+        # Add User To DB #
+        API.addUser(UserName, Password, Salt, FirstName, LastName, Notes, PermissionLevel)
+        
+        # Acknowledge Add User Success #
+        Response = {'Acknowledgement' : 'Add User Success'}
+
 # Authentication #
 @API.post('/Authenticate')
 async def Authentication(RequestJSON: Request):
@@ -162,7 +184,7 @@ async def Authentication(RequestJSON: Request):
         Password = CommandScope['Password']
 
         # Check Uname, Passwd #
-        if ((Username == 'Parzival') and (Password == 'Riddle')): ## This needs to be replaced with real auth, not hardcoded ##
+        if API.WriteAuthentication(Username,Password): ## This needs to be replaced with real auth, not hardcoded ##
 
             Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
 
@@ -177,9 +199,9 @@ async def Authentication(RequestJSON: Request):
 
     except Exception as e:
         print(e)
-
-
-
+        
+# 
+        
 # Define Test Requests #
 @API.get('/APIServerTest')
 async def RandomNumberTest():
