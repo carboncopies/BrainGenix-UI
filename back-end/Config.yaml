@@ -1,7 +1,7 @@
 # Database Configuration #
 DatabaseUsername: bgUser
 DatabasePassword: 123456
-DatabaseHost: 10.1.4.2
+DatabaseHost: 127.0.0.1
 DatabaseName: bgdb
 
 # Set Socket Params Here #
