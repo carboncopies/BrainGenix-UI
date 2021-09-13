@@ -33,6 +33,7 @@ from Core.BackendAPIClient.SocketClient import SocketClient
 
 from Core.BackendAPIClient.Auth import AuthenticationManager
 
+from Core.Management.API.ManagementAPI import ManagementAPISocketServe
 
 # Load Config #
 SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
@@ -91,6 +92,10 @@ sNESSocketConnection.BenchmarkConnection()
 sAuthenticationManager = AuthenticationManager(mLogger, SystemConfiguration)
 
 
+# Instantiate Management API Socket Server #
+sNESSocketAPI= ManagementAPISocketServer(mLogger, SystemConfiguration, mThreadManagerInstance, SocketClientConfig)
+
+
 # Instantiate FastAPI System #
 API = FastAPI()
 
@@ -147,13 +152,15 @@ async def root(RequestJSON: Request):
         print('Error: ' + e)
 
 # Add a new user #
-@API.get('/AddUser')
+@API.post('/AddUser')
 async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
+
+    try:
 
         # Decode Incoming JSON #
         RequestBytes = await RequestJSON.body()
         APIArgs = json.loads(RequestBytes.decode())
-        
+        print(APIArgs)
         # Get User Info #
         UserName = APIArgs['Username']
         Password = APIArgs['Password']
@@ -166,32 +173,34 @@ async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
         Salt = secrets.token_urlsafe(65535)
 
         # Add User To DB #
-        API.addUser(UserName, Password, Salt, FirstName, LastName, Notes, PermissionLevel)
-        
-        # Acknowledge Add User Success #
-        Response = {'Acknowledgement' : 'Add User Success'}
-        
-        return Response
+        sNESSocketAPI.addUser(UserName, Password, Salt, FirstName, LastName, Notes, int(PermissionLevel))
 
+        # Acknowledge Add User Success #
+        return {'Acknowledgement' : 'Add User Success'}
+
+    except Exception as e:
+        print(e)
+        
+        
 # Authentication #
 @API.post('/Authenticate')
 async def Authentication(RequestJSON: Request):
-    
+
     try:
 
         # Decode Incoming JSON #
         RequestBytes = await RequestJSON.body()
         CommandScope = json.loads(RequestBytes.decode())
 
-        #print(CommandScope)
+        print(CommandScope)
 
         # Get Uname, Passwd #
         Username = CommandScope['Username']
         Password = CommandScope['Password']
 
         # Check Uname, Passwd #
-        if API.WriteAuthentication(Username,Password):
-            
+        if sNESSocketAPI.WriteAuthentication(Username,Password):
+
             Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
 
         # Auth Fails #
