@@ -33,7 +33,7 @@ from Core.BackendAPIClient.SocketClient import SocketClient
 
 from Core.BackendAPIClient.Auth import AuthenticationManager
 
-from Core.Management.API.ManagementAPI import ManagementAPISocketServe
+#from Core.Management.API.ManagementAPI import ManagementAPISocketServe
 
 # Load Config #
 SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
@@ -93,7 +93,7 @@ sAuthenticationManager = AuthenticationManager(mLogger, SystemConfiguration)
 
 
 # Instantiate Management API Socket Server #
-sNESSocketAPI= ManagementAPISocketServer(mLogger, SystemConfiguration, mThreadManagerInstance, SocketClientConfig)
+#sNESSocketAPI= ManagementAPISocketServer(mLogger, SystemConfiguration, mThreadManagerInstance, SocketClientConfig)
 
 
 # Instantiate FastAPI System #
@@ -173,7 +173,7 @@ async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
         Salt = secrets.token_urlsafe(65535)
 
         # Add User To DB #
-        sNESSocketAPI.addUser(UserName, Password, Salt, FirstName, LastName, Notes, int(PermissionLevel))
+        sNESSocketConnection.addUser(UserName, Password, Salt, FirstName, LastName, Notes, int(PermissionLevel))
 
         # Acknowledge Add User Success #
         return {'Acknowledgement' : 'Add User Success'}
@@ -199,7 +199,7 @@ async def Authentication(RequestJSON: Request):
         Password = CommandScope['Password']
 
         # Check Uname, Passwd #
-        if sNESSocketAPI.WriteAuthentication(Username,Password):
+        if sNESSocketConnection.WriteAuthentication(Username,Password):
 
             Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
 
