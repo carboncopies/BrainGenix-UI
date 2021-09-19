@@ -18,6 +18,7 @@ class SocketClient(): # Creates A Client Socket System #
     def __init__(self, Logger, ConfigParams): # Initialization #
 
         # Save Local Pointers #
+        self.ConfigParams= ConfigParams
         self.Logger = Logger
         self.IP = ConfigParams['IP'] # This needs to be eventually gotten from the ZK Leader, not a cfg file, as leader transitions crash! #
         self.Port = ConfigParams['Port']
@@ -111,8 +112,7 @@ class SocketClient(): # Creates A Client Socket System #
         # Return Value #
         return TimePerCall
 
-
-
+    
     def Disconnect(self): # Disconnects The Client #
 
         # Call Disconnect #
@@ -120,35 +120,10 @@ class SocketClient(): # Creates A Client Socket System #
         self.Socket.close()
 
 
-
-
-def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads Configuration For SocketClient #
-
-    # Log Start Message #
-    Logger.Log('Getting Socket Client Host Information')
-
-    # Get Leader Znode #
-    Logger.Log('Finding Leader Znode')
-
-    # Check For Leader #
-    while not ZookeeperInstance.ZookeeperConnection.exists('/BrainGenix/System/Leader'):
-        time.sleep(0.1)
-
-    # Decode Leader Information #
-    ZookeeperLeaderInformation = ZookeeperInstance.ZookeeperConnection.get('/BrainGenix/System/Leader')[0]
-    ZookeeperLeaderInformation = json.loads(ZookeeperLeaderInformation)
-    IPAddr = ZookeeperLeaderInformation['IP'].split(':')[0]
-
-    # Get Port Information #
-    Port = BackendConfigDict['Port']
-
-    return {'IP' : IPAddr, 'Port' : Port}
-
-
-    def DBUpdate(self, SystemConfiguration:dict, command:str): # Executes SQL queries to update commands into the bgdb.Command table #
+    def DBUpdate(self, command:str): # Executes SQL queries to update commands into the bgdb.Command table #
 
         # Get Database Config #
-        SystemConfiguration = self.SystemConfiguration
+        SystemConfiguration = self.ConfigParams
 
         # Connect To DB #
         DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
@@ -181,12 +156,13 @@ def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads
                 if len(value)!=0:
                     self.RecursionCommands= value
                     self.UpdateCommand()
+                    
 
     #Returns list of commands that a user can execute based on his/her permission level
     def WriteAuthentication(self):
 
         # Get Database Config #
-        SystemConfiguration = self.SystemConfiguration
+        SystemConfiguration = self.ConfigParams
 
         # Connect To DB #
         DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
@@ -224,10 +200,10 @@ def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads
 
         self.DatabaseConnection.close()
 
-    def addUser(self, SystemConfiguration:dict, userName:str, passwordHash:str, salt:str, firstName:str, lastName:str, notes:str, permissionLevel:int):
+    def addUser(self, userName:str, passwordHash:str, salt:str, firstName:str, lastName:str, notes:str, permissionLevel:int):
 
         # Get Database Config #
-        SystemConfiguration = self.SystemConfiguration
+        SystemConfiguration = self.ConfigParams
 
         # Connect To DB #
         DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
@@ -247,3 +223,26 @@ def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads
         cur.execute("INSERT INTO user (userName, passwordHash, salt, firstName, lastName, notes, permissionLevel) VALUES (%s,%s,%s,%s,%s,%s,%d)",(userName, passwordHash, salt, firstName, lastName, notes, permissionLevel))
 
         self.DatabaseConnection.close()
+        
+     
+def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads Configuration For SocketClient #
+
+    # Log Start Message #
+    Logger.Log('Getting Socket Client Host Information')
+
+    # Get Leader Znode #
+    Logger.Log('Finding Leader Znode')
+
+    # Check For Leader #
+    while not ZookeeperInstance.ZookeeperConnection.exists('/BrainGenix/System/Leader'):
+        time.sleep(0.1)
+
+    # Decode Leader Information #
+    ZookeeperLeaderInformation = ZookeeperInstance.ZookeeperConnection.get('/BrainGenix/System/Leader')[0]
+    ZookeeperLeaderInformation = json.loads(ZookeeperLeaderInformation)
+    IPAddr = ZookeeperLeaderInformation['IP'].split(':')[0]
+
+    # Get Port Information #
+    Port = BackendConfigDict['Port']
+
+    return {'IP' : IPAddr, 'Port' : Port}
