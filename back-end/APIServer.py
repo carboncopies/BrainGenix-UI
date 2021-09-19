@@ -33,8 +33,6 @@ from Core.BackendAPIClient.SocketClient import SocketClient
 
 from Core.BackendAPIClient.Auth import AuthenticationManager
 
-#from Core.Management.API.ManagementAPI import ManagementAPISocketServe
-
 # Load Config #
 SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 
@@ -90,10 +88,6 @@ sNESSocketConnection.BenchmarkConnection()
 
 # Instantiate Auth Manager #
 sAuthenticationManager = AuthenticationManager(mLogger, SystemConfiguration)
-
-
-# Instantiate Management API Socket Server #
-#sNESSocketAPI= ManagementAPISocketServer(mLogger, SystemConfiguration, mThreadManagerInstance, SocketClientConfig)
 
 
 # Instantiate FastAPI System #
