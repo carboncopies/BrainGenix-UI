@@ -150,19 +150,22 @@ async def root(RequestJSON: Request):
 async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
 
 
-    #try:
-
         # Decode Incoming JSON #
         RequestBytes = await RequestJSON.body()
         APIArgs = json.loads(RequestBytes.decode())
         print(APIArgs)
+
         # Get User Info #
-        UserName = APIArgs['Username']
-        Password = APIArgs['Password']
-        FirstName = APIArgs['FirstName']
-        LastName = APIArgs['LastName']
-        Notes = APIArgs['Notes']
-        PermissionLevel = APIArgs['PermissionLevel']
+        try:
+            UserName = APIArgs['Username']
+            Password = APIArgs['Password']
+            FirstName = APIArgs['FirstName']
+            LastName = APIArgs['LastName']
+            Notes = APIArgs['Notes']
+            PermissionLevel = APIArgs['PermissionLevel']
+        except Exception as e:
+            print(e)
+            return {'Error': 'Invalid Arguments, Please Check Your Parameters'}
 
         # Create Salt Token #
         Salt = secrets.token_urlsafe(2)
@@ -173,8 +176,7 @@ async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
         # Acknowledge Add User Success #
         return {'Acknowledgement' : 'Add User Success'}
 
-    #except Exception as e:
-    #    print(e)
+
         
         
 # Authentication #
