@@ -222,7 +222,7 @@ class SocketClient(): # Creates A Client Socket System #
         )
 
         cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)
-        cur.execute("INSERT INTO user (userName, passwordHash, salt, firstName, lastName, notes, permissionLevel) VALUES (%s,%s,%s,%s,%s,%s,%d)",(userName, passwordHash, salt, firstName, lastName, notes, permissionLevel))
+        cur.execute("INSERT INTO user (userName, passwordHash, salt, firstName, lastName, notes, permissionLevel) VALUES (%s,%s,%s,%s,%s,%s,%s)",(userName, passwordHash, salt, firstName, lastName, notes, permissionLevel))
 
         self.DatabaseConnection.close()
         
