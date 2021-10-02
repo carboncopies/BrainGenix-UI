@@ -165,7 +165,7 @@ async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
         PermissionLevel = APIArgs['PermissionLevel']
 
         # Create Salt Token #
-        Salt = secrets.token_urlsafe(6)
+        Salt = secrets.token_urlsafe(2)
 
         # Add User To DB #
         sNESSocketConnection.addUser(UserName, Password, Salt, FirstName, LastName, Notes, int(PermissionLevel))
