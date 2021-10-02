@@ -80,7 +80,7 @@ sZookeeper = mThreadManagerInstance.InstantiateZK(mLogger, SystemConfiguration)
 # Get Socket Client Config #
 SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, SystemConfiguration)
 
-print(SocketClientConfig)
+print(SystemConfiguration)
 
 # Connect To NES Server #
 sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
