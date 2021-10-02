@@ -158,10 +158,9 @@ class SocketClient(): # Creates A Client Socket System #
                 if len(value)!=0:
                     self.RecursionCommands= value
                     self.UpdateCommand()
-                    
 
     #Returns list of commands that a user can execute based on his/her permission level
-    def WriteAuthentication(self):
+    def WriteAuthentication(self, userName:str, passwordHash:str):
 
         # Get Database Config #
         SystemConfiguration = self.DatabaseConfiguration
@@ -174,33 +173,28 @@ class SocketClient(): # Creates A Client Socket System #
 
         # Connect To Database #
         self.DatabaseConnection = pymysql.connect(
-            host = DBHost,
-            user = DBUsername,
-            password = DBPassword,
-            db = DBDatabaseName
+                host = DBHost,
+                user = DBUsername,
+                password = DBPassword,
+                db = DBDatabaseName
         )
 
         cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)
 
-        rows = cur.execute("SELECT * FROM user WHERE userName=%s AND passwordHash=%s",(DBUsername,DBPassword))
+        cur.execute("SELECT * FROM user WHERE userName=%s AND passwordHash=%s",(userName,passwordHash))
+        userCursor = cur
 
-        if rows!=0:
-            for row in rows:
-                level = row['permissionLevel']
-                rows = cur.execute("SELECT * FROM command WHERE permissionLevel=%d",int(level))
+        for row in userCursor:
+            level = row['permissionLevel']
+            cur.execute("SELECT * FROM command WHERE permissionLevel=%s",level)
 
-                if rows!=0:
-                    print("Executable Commands for current permission level:")
-                    for row in rows:
-                        print(row['commandName'],"\t",row['commandDescription'])
-
-                else:
-                    print("No commands available for current permission level")
-
-        else:
-            print("No matching user found in Database.")
+            print("Executable Commands for current permission level:")
+            for row1 in cur:
+                print(row1['commandName'],"\t",row1['commandDescription'])
 
         self.DatabaseConnection.close()
+        
+        return True
 
     def addUser(self, userName:str, passwordHash:str, salt:str, firstName:str, lastName:str, notes:str, permissionLevel:int):
 
@@ -223,7 +217,7 @@ class SocketClient(): # Creates A Client Socket System #
 
         cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)
         cur.execute("INSERT INTO user (userName, passwordHash, salt, firstName, lastName, notes, permissionLevel) VALUES (%s,%s,%s,%s,%s,%s,%s)",(userName, passwordHash, salt, firstName, lastName, notes, permissionLevel))
-
+        self.DatabaseConnection.commit()
         self.DatabaseConnection.close()
         
      
