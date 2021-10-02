@@ -183,7 +183,7 @@ async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
 @API.post('/Authenticate')
 async def Authentication(RequestJSON: Request):
 
-    try:
+    # try:
 
         # Decode Incoming JSON #
         RequestBytes = await RequestJSON.body()
@@ -209,8 +209,8 @@ async def Authentication(RequestJSON: Request):
         # Return Response #
         return Response
 
-    except Exception as e:
-        print(e)
+    # except Exception as e:
+    #     print(e)
         
         
 # Define Test Requests #
