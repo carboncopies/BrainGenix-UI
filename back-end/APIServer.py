@@ -12,6 +12,7 @@ Date-Created: 2021-03-03
 import json
 import uvicorn
 import os
+import secrets
 
 from fastapi import FastAPI
 from fastapi import Request
@@ -31,7 +32,6 @@ from Core.BackendAPIClient.SocketClient import GetSocketClientConfig
 from Core.BackendAPIClient.SocketClient import SocketClient
 
 from Core.BackendAPIClient.Auth import AuthenticationManager
-
 
 # Load Config #
 SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
@@ -82,7 +82,7 @@ SocketClientConfig = GetSocketClientConfig(mLogger, sZookeeper, SystemConfigurat
 
 
 # Connect To NES Server #
-sNESSocketConnection = SocketClient(mLogger, SocketClientConfig)
+sNESSocketConnection = SocketClient(mLogger, SocketClientConfig, SystemConfiguration)
 sNESSocketConnection.BenchmarkConnection()
 
 
@@ -145,24 +145,58 @@ async def root(RequestJSON: Request):
     except Exception as e:
         print('Error: ' + e)
 
+# Add a new user #
+@API.post('/AddUser')
+async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
+
+
+        # Decode Incoming JSON #
+        RequestBytes = await RequestJSON.body()
+        APIArgs = json.loads(RequestBytes.decode())
+        print(APIArgs)
+
+        # Get User Info #
+        try:
+            UserName = APIArgs['Username']
+            Password = APIArgs['Password']
+            FirstName = APIArgs['FirstName']
+            LastName = APIArgs['LastName']
+            Notes = APIArgs['Notes']
+            PermissionLevel = APIArgs['PermissionLevel']
+        except Exception as e:
+            print(e)
+            return {'Error': 'Invalid Arguments, Please Check Your Parameters'}
+
+        # Create Salt Token #
+        Salt = secrets.token_urlsafe(2)
+
+        # Add User To DB #
+        sNESSocketConnection.addUser(UserName, Password, Salt, FirstName, LastName, Notes, int(PermissionLevel))
+
+        # Acknowledge Add User Success #
+        return {'Acknowledgement' : 'Add User Success'}
+
+
+        
+        
 # Authentication #
 @API.post('/Authenticate')
 async def Authentication(RequestJSON: Request):
 
-    try:
+    # try:
 
         # Decode Incoming JSON #
         RequestBytes = await RequestJSON.body()
         CommandScope = json.loads(RequestBytes.decode())
 
-        #print(CommandScope)
+        print(CommandScope)
 
         # Get Uname, Passwd #
         Username = CommandScope['Username']
         Password = CommandScope['Password']
 
         # Check Uname, Passwd #
-        if ((Username == 'Parzival') and (Password == 'Riddle')): ## This needs to be replaced with real auth, not hardcoded ##
+        if sNESSocketConnection.WriteAuthentication(Username,Password):
 
             Response = {'Token' : sAuthenticationManager.GenerateToken(Username)}
 
@@ -175,11 +209,10 @@ async def Authentication(RequestJSON: Request):
         # Return Response #
         return Response
 
-    except Exception as e:
-        print(e)
-
-
-
+    # except Exception as e:
+    #     print(e)
+        
+        
 # Define Test Requests #
 @API.get('/APIServerTest')
 async def RandomNumberTest():

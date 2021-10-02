@@ -6,6 +6,7 @@ from json.decoder import JSONDecodeError
 import time
 import socket
 import json
+import pymysql
 
 '''
 Name: Socket Backend Client
@@ -15,9 +16,11 @@ Date-Created: 2021-05-17
 
 class SocketClient(): # Creates A Client Socket System #
 
-    def __init__(self, Logger, ConfigParams): # Initialization #
+    def __init__(self, Logger, ConfigParams, DatabaseConfiguration): # Initialization #
 
         # Save Local Pointers #
+        self.ConfigParams = ConfigParams
+        self.DatabaseConfiguration = DatabaseConfiguration
         self.Logger = Logger
         self.IP = ConfigParams['IP'] # This needs to be eventually gotten from the ZK Leader, not a cfg file, as leader transitions crash! #
         self.Port = ConfigParams['Port']
@@ -111,8 +114,7 @@ class SocketClient(): # Creates A Client Socket System #
         # Return Value #
         return TimePerCall
 
-
-
+    
     def Disconnect(self): # Disconnects The Client #
 
         # Call Disconnect #
@@ -120,8 +122,105 @@ class SocketClient(): # Creates A Client Socket System #
         self.Socket.close()
 
 
+    def DBUpdate(self, command:str): # Executes SQL queries to update commands into the bgdb.Command table #
+
+        # Get Database Config #
+        SystemConfiguration = self.DatabaseConfiguration
+
+        # Connect To DB #
+        DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
+        DBPassword = str(SystemConfiguration.get('DatabasePassword'))
+        DBHost = str(SystemConfiguration.get('DatabaseHost'))
+        DBDatabaseName = str(SystemConfiguration.get('DatabaseName'))
+
+        # Connect To Database #
+        self.DatabaseConnection = pymysql.connect(
+            host = DBHost,
+            user = DBUsername,
+            password = DBPassword,
+            db = DBDatabaseName
+        )
+
+        cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)
+
+        cur.execute("INSERT INTO command (commandName) VALUES (%s)",(command))
+
+        self.DatabaseConnection.close()
 
 
+    def UpdateCommand(self): # Updates commands to bgdb.Command table to establish usage permission levels #
+
+        # Can we add more comments here explaining this?
+
+        for key, value in self.RecursionCommands.items():
+            self.DBUpdate(self.SystemConfiguration, key)
+            if isinstance(value, dict):
+                if len(value)!=0:
+                    self.RecursionCommands= value
+                    self.UpdateCommand()
+
+    #Returns list of commands that a user can execute based on his/her permission level
+    def WriteAuthentication(self, userName:str, passwordHash:str):
+
+        # Get Database Config #
+        SystemConfiguration = self.DatabaseConfiguration
+
+        # Connect To DB #
+        DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
+        DBPassword = str(SystemConfiguration.get('DatabasePassword'))
+        DBHost = str(SystemConfiguration.get('DatabaseHost'))
+        DBDatabaseName = str(SystemConfiguration.get('DatabaseName'))
+
+        # Connect To Database #
+        self.DatabaseConnection = pymysql.connect(
+                host = DBHost,
+                user = DBUsername,
+                password = DBPassword,
+                db = DBDatabaseName
+        )
+
+        cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)
+
+        cur.execute("SELECT * FROM user WHERE userName=%s AND passwordHash=%s",(userName,passwordHash))
+        userCursor = cur
+
+        for row in userCursor:
+            level = row['permissionLevel']
+            cur.execute("SELECT * FROM command WHERE permissionLevel=%s",level)
+
+            print("Executable Commands for current permission level:")
+            for row1 in cur:
+                print(row1['commandName'],"\t",row1['commandDescription'])
+
+        self.DatabaseConnection.close()
+        
+        return True
+
+    def addUser(self, userName:str, passwordHash:str, salt:str, firstName:str, lastName:str, notes:str, permissionLevel:int):
+
+        # Get Database Config #
+        SystemConfiguration = self.DatabaseConfiguration
+
+        # Connect To DB #
+        DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
+        DBPassword = str(SystemConfiguration.get('DatabasePassword'))
+        DBHost = str(SystemConfiguration.get('DatabaseHost'))
+        DBDatabaseName = str(SystemConfiguration.get('DatabaseName'))
+
+        # Connect To Database #
+        self.DatabaseConnection = pymysql.connect(
+            host = DBHost,
+            user = DBUsername,
+            password = DBPassword,
+            db = DBDatabaseName
+        )
+
+        cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)
+        cur.execute("INSERT INTO user (userName, passwordHash, salt, firstName, lastName, notes, permissionLevel) VALUES (%s,%s,%s,%s,%s,%s,%s)",(userName, passwordHash, salt, firstName, lastName, notes, permissionLevel))
+        self.DatabaseConnection.commit()
+        self.DatabaseConnection.close()
+        
+     
 def GetSocketClientConfig(Logger, ZookeeperInstance, BackendConfigDict): # Reads Configuration For SocketClient #
 
     # Log Start Message #

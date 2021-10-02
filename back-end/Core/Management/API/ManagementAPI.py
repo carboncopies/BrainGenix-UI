@@ -25,7 +25,7 @@ Date-Created: 2021-05-17
 
 class ManagementAPISocketServer(): # Creates A Class To Connect To The Management API #
 
-    def __init__(self, Logger, SystemConfiguration:dict, ThreadManager:object): # This function initialializes sockets #
+    def __init__(self, Logger, SystemConfiguration:dict, ThreadManager:object, ConfigParams): # This function initialializes sockets #
 
         # Get Config Params #
         self.Logger = Logger
