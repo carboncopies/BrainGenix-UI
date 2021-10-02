@@ -6,6 +6,7 @@ from json.decoder import JSONDecodeError
 import time
 import socket
 import json
+import pymysql
 
 '''
 Name: Socket Backend Client
