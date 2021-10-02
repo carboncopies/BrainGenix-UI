@@ -16,10 +16,11 @@ Date-Created: 2021-05-17
 
 class SocketClient(): # Creates A Client Socket System #
 
-    def __init__(self, Logger, ConfigParams): # Initialization #
+    def __init__(self, Logger, ConfigParams, DatabaseConfiguration): # Initialization #
 
         # Save Local Pointers #
-        self.ConfigParams= ConfigParams
+        self.ConfigParams = ConfigParams
+        self.DatabaseConfiguration = DatabaseConfiguration
         self.Logger = Logger
         self.IP = ConfigParams['IP'] # This needs to be eventually gotten from the ZK Leader, not a cfg file, as leader transitions crash! #
         self.Port = ConfigParams['Port']
@@ -124,7 +125,7 @@ class SocketClient(): # Creates A Client Socket System #
     def DBUpdate(self, command:str): # Executes SQL queries to update commands into the bgdb.Command table #
 
         # Get Database Config #
-        SystemConfiguration = self.ConfigParams
+        SystemConfiguration = self.DatabaseConfiguration
 
         # Connect To DB #
         DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
@@ -163,7 +164,7 @@ class SocketClient(): # Creates A Client Socket System #
     def WriteAuthentication(self):
 
         # Get Database Config #
-        SystemConfiguration = self.ConfigParams
+        SystemConfiguration = self.DatabaseConfiguration
 
         # Connect To DB #
         DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
@@ -204,7 +205,7 @@ class SocketClient(): # Creates A Client Socket System #
     def addUser(self, userName:str, passwordHash:str, salt:str, firstName:str, lastName:str, notes:str, permissionLevel:int):
 
         # Get Database Config #
-        SystemConfiguration = self.ConfigParams
+        SystemConfiguration = self.DatabaseConfiguration
 
         # Connect To DB #
         DBUsername = str(SystemConfiguration.get('DatabaseUsername'))
