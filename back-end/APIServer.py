@@ -149,33 +149,32 @@ async def root(RequestJSON: Request):
 @API.post('/AddUser')
 async def mAPI_CreateUser(RequestJSON: Request): # Create User Statemenet #
 
-    return 'Test'
 
-    # try:
+    #try:
 
-    #     # Decode Incoming JSON #
-    #     RequestBytes = await RequestJSON.body()
-    #     APIArgs = json.loads(RequestBytes.decode())
-    #     print(APIArgs)
-    #     # Get User Info #
-    #     UserName = APIArgs['Username']
-    #     Password = APIArgs['Password']
-    #     FirstName = APIArgs['FirstName']
-    #     LastName = APIArgs['LastName']
-    #     Notes = APIArgs['Notes']
-    #     PermissionLevel = APIArgs['PermissionLevel']
+        # Decode Incoming JSON #
+        RequestBytes = await RequestJSON.body()
+        APIArgs = json.loads(RequestBytes.decode())
+        print(APIArgs)
+        # Get User Info #
+        UserName = APIArgs['Username']
+        Password = APIArgs['Password']
+        FirstName = APIArgs['FirstName']
+        LastName = APIArgs['LastName']
+        Notes = APIArgs['Notes']
+        PermissionLevel = APIArgs['PermissionLevel']
 
-    #     # Create Salt Token #
-    #     Salt = secrets.token_urlsafe(65535)
+        # Create Salt Token #
+        Salt = secrets.token_urlsafe(65535)
 
-    #     # Add User To DB #
-    #     sNESSocketConnection.addUser(UserName, Password, Salt, FirstName, LastName, Notes, int(PermissionLevel))
+        # Add User To DB #
+        sNESSocketConnection.addUser(UserName, Password, Salt, FirstName, LastName, Notes, int(PermissionLevel))
 
-    #     # Acknowledge Add User Success #
-    #     return {'Acknowledgement' : 'Add User Success'}
+        # Acknowledge Add User Success #
+        return {'Acknowledgement' : 'Add User Success'}
 
-    # except Exception as e:
-    #     print(e)
+    #except Exception as e:
+    #    print(e)
         
         
 # Authentication #
