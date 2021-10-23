@@ -45,7 +45,9 @@ if __name__ == '__main__':
         "APIServer:API",
         host=SystemConfiguration['APIServerAddress'],
         port=SystemConfiguration['APIServerPort'],
-        log_level="info"
+        log_level="info",
+        ssl_keyfile="./key.pem",
+        ssl_certfile="./cert.pem"
     )
 
     # Shutdown Server #
