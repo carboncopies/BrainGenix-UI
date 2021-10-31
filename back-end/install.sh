@@ -1,3 +1,5 @@
+#! /bin/bash
+
 sudo apt install libnss3-tools -y
 
 wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
