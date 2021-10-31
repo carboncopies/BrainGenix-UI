@@ -46,8 +46,8 @@ if __name__ == '__main__':
         host=SystemConfiguration['APIServerAddress'],
         port=SystemConfiguration['APIServerPort'],
         log_level="info",
-        ssl_keyfile=".gitignore/key.pem",
-        ssl_certfile=".gitignore/cert.pem"
+        ssl_keyfile=".gitsecret/key.pem",
+        ssl_certfile=".gitsecret/cert.pem"
     )
 
     # Shutdown Server #
