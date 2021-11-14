@@ -39,16 +39,22 @@ SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 
 # Start Uvicorn #
 if __name__ == '__main__':
+    
+    try: 
 
-    # Launch UVICorn Instance #
-    uvicorn.run(
-        "APIServer:API",
-        host=SystemConfiguration['APIServerAddress'],
-        port=SystemConfiguration['APIServerPort'],
-        log_level="info",
-        ssl_keyfile=".gitsecret/key.pem",
-        ssl_certfile=".gitsecret/cert.pem"
-    )
+        # Launch UVICorn Instance #
+
+        uvicorn.run(
+            "APIServer:API",
+            host=SystemConfiguration['APIServerAddress'],
+            port=SystemConfiguration['APIServerPort'],
+            log_level="info",
+            ssl_keyfile=".gitsecret/key.pem",
+            ssl_certfile=".gitsecret/cert.pem"
+        )
+
+    except Exception as e:
+        print('Error: ' + e)
 
     # Shutdown Server #
     os._exit(0)
