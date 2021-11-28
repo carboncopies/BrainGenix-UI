@@ -12,6 +12,7 @@ Date-Created: 2021-03-03
 import json
 import uvicorn
 import os
+import subprocess
 import secrets
 
 from fastapi import FastAPI
@@ -39,6 +40,9 @@ SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 
 # Start Uvicorn #
 if __name__ == '__main__':
+
+    if os.path.exists("/home/BrainGenix-UI/back-end/.gitsecret/key.pem")==False and os.path.exists("/home/BrainGenix-UI/back-end/.gitsecret/cert.pem")==False:
+        subprocess.call(['sh', './install.sh'])
     
     try: 
 
