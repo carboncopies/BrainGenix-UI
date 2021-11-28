@@ -58,7 +58,7 @@ if __name__ == '__main__':
         )
 
     except Exception as e:
-        print('Error: ' + e)
+        print('Error: Key and Certificate could not be loaded' + e)
 
     # Shutdown Server #
     os._exit(0)
