@@ -12,6 +12,7 @@ Date-Created: 2021-03-03
 import json
 import uvicorn
 import os
+import subprocess
 import secrets
 
 from fastapi import FastAPI
@@ -40,13 +41,24 @@ SystemConfiguration = LoadLocalConfig(ConfigFilePath = 'Config.yaml')
 # Start Uvicorn #
 if __name__ == '__main__':
 
-    # Launch UVICorn Instance #
-    uvicorn.run(
-        "APIServer:API",
-        host=SystemConfiguration['APIServerAddress'],
-        port=SystemConfiguration['APIServerPort'],
-        log_level="info"
-    )
+    if os.path.exists("/home/BrainGenix-UI/back-end/.gitsecret/key.pem")==False and os.path.exists("/home/BrainGenix-UI/back-end/.gitsecret/cert.pem")==False:
+        subprocess.call(['sh', './install.sh'])
+    
+    try: 
+
+        # Launch UVICorn Instance #
+
+        uvicorn.run(
+            "APIServer:API",
+            host=SystemConfiguration['APIServerAddress'],
+            port=SystemConfiguration['APIServerPort'],
+            log_level="info",
+            ssl_keyfile=".gitsecret/key.pem",
+            ssl_certfile=".gitsecret/cert.pem"
+        )
+
+    except Exception as e:
+        print('Error: Key and Certificate could not be loaded' + e)
 
     # Shutdown Server #
     os._exit(0)

@@ -5,3 +5,7 @@ Logs/*
 
 node_modules/
 node_modules/*
+.gitsecret/*
+
+back-end/.gitsecret/key.pem
+back-end/.gitsecret/cert.pem
