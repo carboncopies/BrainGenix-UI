@@ -428,22 +428,30 @@ class ManagementAPISocketServer(): # Creates A Class To Connect To The Managemen
         cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)
 
         rows = cur.execute("SELECT * FROM user WHERE userName=%s AND passwordHash=%s",(DBUsername,DBPassword))
-
-        if rows!=0:
-            for row in rows:
-                level = row['permissionLevel']
-                rows = cur.execute("SELECT * FROM command WHERE permissionLevel=%d",int(level))
-
-                if rows!=0:
-                    print("Executable Commands for current permission level:")
-                    for row in rows:
-                        print(row['commandName'],"\t",row['commandDescription'])
-
-                else:
-                    print("No commands available for current permission level")
-
-        else:
+        
+        if rows==0:
+            else:
             print("No matching user found in Database.")
+            salt = input("Enter salt")                                                                                                                                                                   
+            firstName = input("Enter first name")                                                                                                                                                        
+            lastName = input("Enter last name")
+            notes = input("Enter notes")                                                                                                                                                                 
+            permissionLevel = 1
+            addUser(userName,passwordHash,salt,firstName,lastName,notes,permissionLevel)
+            cur = self.DatabaseConnection.cursor(pymysql.cursors.DictCursor)                                                                                                             
+            rows= cur.execute("SELECT permissionLevel FROM user WHERE userName=%s AND passwordHash=%s",(userName,passwordHash))                                                                                
+
+        for row in rows:
+            level = row['permissionLevel']
+            rows = cur.execute("SELECT * FROM command WHERE permissionLevel=%d",int(level))
+
+            if rows!=0:
+                print("Executable Commands for current permission level:")
+                for row in rows:
+                    print(row['commandName'],"\t",row['commandDescription'])
+
+            else:
+                print("No commands available for current permission level")
 
         self.DatabaseConnection.close()
 
